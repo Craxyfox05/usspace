@@ -16,8 +16,8 @@ import Image from "next/image";
 import { createContext, useContext } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/firebase";
-import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+// Remove react-router-dom imports
+// If AuthContext is needed, import it properly from your project structure
 
 // Demo memory images and videos
 const demoMemories = [
@@ -280,7 +280,5 @@ export default function MemoriesPage() {
   );
 }
 
-export const ProtectedRoute = () => {
-  const { currentUser } = useAuth();
-  return currentUser ? <Outlet /> : <Navigate to="/login" />;
-};
+// Remove ProtectedRoute component that uses react-router-dom
+// Use Next.js routing instead for authentication protection
