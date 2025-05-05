@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { 
   Headphones, 
@@ -24,6 +25,12 @@ import PlaylistCard from "@/components/music/PlaylistCard";
 import ShareMusicDialog from "@/components/music/ShareMusicDialog";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
+
+// Dynamically import the SessionHandler component with ssr: false
+const SessionHandler = dynamic(() => import("@/components/music/SessionHandler"), { 
+  ssr: false,
+  loading: () => null
+});
 
 // Sample playlist data
 const playlists = [
@@ -65,24 +72,9 @@ const playlists = [
 
 export default function ListenTogetherPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { user, partner, isAuthenticated } = useStore();
   const [isSharing, setIsSharing] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
-  
-  // Check if there's a session ID in the URL
-  const sessionId = searchParams.get("session");
-  
-  useEffect(() => {
-    // If there's a session ID in the URL, we're joining a session
-    if (sessionId) {
-      // In a real app, this would connect to the session
-      setTimeout(() => {
-        toast.success("Joined listening session!");
-        setIsSharing(true);
-      }, 1000);
-    }
-  }, [sessionId]);
   
   // Auth check
   useEffect(() => {
@@ -103,6 +95,14 @@ export default function ListenTogetherPage() {
     setIsSharing(true);
     toast.success("Started a shared listening session!");
   };
+
+  const handleSessionDetected = (sessionId: string) => {
+    // In a real app, this would connect to the session
+    setTimeout(() => {
+      toast.success("Joined listening session!");
+      setIsSharing(true);
+    }, 1000);
+  };
   
   return (
     <PageLayout>
@@ -111,6 +111,9 @@ export default function ListenTogetherPage() {
           title="Listen Together"
           subtitle="Share music experiences with your loved one"
         />
+        
+        {/* Client-side only component */}
+        <SessionHandler onSessionDetected={handleSessionDetected} />
         
         <div className="container py-8 max-w-6xl">
           <div className="bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-200 rounded-xl p-6 mb-8 shadow-sm">
