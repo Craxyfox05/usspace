@@ -14,7 +14,7 @@ import { ChevronLeft, ChevronRight, Heart, Calendar, MapPin, Tag, BookOpen, Imag
 import { cn } from "@/lib/utils";
 import CallButton from "@/components/VideoCall/CallButton";
 import { useSyncActions, ActionType } from "@/hooks/useSyncActions";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, animate } from "framer-motion";
 
 // Extended Memory type to include story
 interface MemoryWithStory extends Omit<Memory, 'id'> {
@@ -126,14 +126,102 @@ const demoMemories: MemoryWithStory[] = [
   },
 ];
 
+// Component for the animated traveler on the path
+const PathTraveler = ({ pathLength }: { pathLength: string }) => {
+  const progress = useMotionValue(0);
+  const smoothProgress = useSpring(progress, { damping: 20, stiffness: 100 });
+  
+  useEffect(() => {
+    const controls = {
+      duration: 10,
+      ease: "easeInOut",
+      repeat: Infinity,
+      repeatType: "reverse" as const,
+    };
+    
+    progress.set(0);
+    setTimeout(() => {
+      progress.set(0);
+      // Use the built-in methods of MotionValue
+      const animateProgress = () => {
+        progress.set(0);
+        const id = window.setInterval(() => {
+          const val = progress.get();
+          if (val < 1) {
+            progress.set(val + 0.01);
+          } else {
+            window.clearInterval(id);
+            // Reverse the animation
+            const reverseId = window.setInterval(() => {
+              const reverseVal = progress.get();
+              if (reverseVal > 0) {
+                progress.set(reverseVal - 0.01);
+              } else {
+                window.clearInterval(reverseId);
+                animateProgress(); // Repeat
+              }
+            }, controls.duration * 10);
+          }
+        }, controls.duration * 10);
+      };
+      
+      animateProgress();
+    }, 1000);
+  }, [progress]);
+  
+  return (
+    <>
+      {/* Glowing dot */}
+      <motion.circle
+        cx="0"
+        cy="0"
+        r="8"
+        fill="url(#glowingDot)"
+        filter="url(#glow)"
+        style={{
+          offsetDistance: useTransform(smoothProgress, [0, 1], ["0%", "100%"]),
+          offsetPath: `path('M${pathLength}')`,
+          offsetRotate: "0deg",
+        }}
+      />
+      
+      {/* Heart */}
+      <motion.g
+        style={{
+          offsetDistance: useTransform(smoothProgress, [0, 1], ["0%", "100%"]),
+          offsetPath: `path('M${pathLength}')`,
+          offsetRotate: "0deg",
+        }}
+        filter="url(#glow)"
+      >
+        <motion.path 
+          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+          fill="#ff6b8c"
+          scale={0.7}
+          animate={{
+            scale: [0.65, 0.75, 0.65],
+            y: [0, -2, 0],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </motion.g>
+    </>
+  );
+};
+
 export default function MemoriesPage() {
   const router = useRouter();
   const { isAuthenticated, memories, addMemory } = useStore();
   const [displayMemories, setDisplayMemories] = useState<MemoryWithStory[]>([]);
   const [selectedMemory, setSelectedMemory] = useState<MemoryWithStory | null>(null);
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [positions, setPositions] = useState<{[key: string]: {x: number, y: number, rotation: number}}>({}); 
-  const galleryRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 });
+  const [viewPosition, setViewPosition] = useState({ x: 0, y: 0 });
+  const timelineRef = useRef<HTMLDivElement>(null);
   const { syncAction, partnerActions } = useSyncActions("partner-123");
 
   // Auth check
@@ -152,41 +240,28 @@ export default function MemoriesPage() {
     }
   }, [memories]);
 
-  // Initialize random positions and rotations for polaroid cards
-  useEffect(() => {
-    if (displayMemories.length > 0 && Object.keys(positions).length === 0) {
-      const initialPositions: {[key: string]: {x: number, y: number, rotation: number}} = {};
-      
-      displayMemories.forEach((memory) => {
-        const id = memory.id || '';
-        // Random rotation between -15 and 15 degrees
-        const rotation = Math.random() * 30 - 15;
-        // Initial position with slight random offset
-        const x = Math.random() * 50 - 25;
-        const y = Math.random() * 50 - 25;
-        
-        initialPositions[id] = { x, y, rotation };
-      });
-      
-      setPositions(initialPositions);
-    }
-  }, [displayMemories]);
-
-  // Handle dragging events
-  const handleDragStart = (id: string) => {
-    setDraggingId(id);
+  // Mouse dragging for timeline navigation
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartDragPosition({ x: e.clientX, y: e.clientY });
   };
 
-  const handleDragEnd = (id: string, info: { offset: { x: number, y: number } }) => {
-    setDraggingId(null);
-    setPositions(prev => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        x: prev[id].x + info.offset.x,
-        y: prev[id].y + info.offset.y
-      }
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    
+    const deltaX = e.clientX - startDragPosition.x;
+    const deltaY = e.clientY - startDragPosition.y;
+    
+    setViewPosition(prev => ({
+      x: prev.x + deltaX,
+      y: prev.y + deltaY
     }));
+    
+    setStartDragPosition({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
   };
 
   const handleNewMemory = () => {
@@ -207,23 +282,47 @@ export default function MemoriesPage() {
     setSelectedMemory(null);
   };
 
-  const handleFlipCard = (id: string) => {
-    setPositions(prev => ({
-      ...prev,
-      [id]: {
-        ...prev[id],
-        rotation: prev[id].rotation + 180
-      }
-    }));
-  };
-
   if (!isAuthenticated) {
     return null;
   }
 
-  // Sort memories by date (newest first)
+  // Sort memories by date (oldest first for timeline)
   const sortedMemories = [...displayMemories].sort((a, b) => {
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
+    return new Date(a.date).getTime() - new Date(b.date).getTime();
+  });
+
+  // Group memories by year for level organization
+  const memoryYears = [...new Set(sortedMemories.map(memory => 
+    new Date(memory.date).getFullYear()
+  ))].sort();
+
+  // Create path string for the curved timeline
+  let timelinePath = "";
+  
+  // Create a winding path that elevates each year
+  memoryYears.forEach((year, yearIndex) => {
+    const baseX = yearIndex * 600 + 150;
+    const baseY = 200 + (yearIndex % 2 === 0 ? -30 : 30);
+    
+    // If this is the first year, start the path here
+    if (yearIndex === 0) {
+      timelinePath = `M${baseX},${baseY}`;
+    } else {
+      const prevX = (yearIndex - 1) * 600 + 450;
+      const prevY = 200 + ((yearIndex - 1) % 2 === 0 ? -30 : 30);
+      
+      // Create a curved path to the next year
+      const controlX1 = prevX + 150;
+      const controlY1 = prevY + (yearIndex % 2 === 0 ? 80 : -80);
+      const controlX2 = baseX - 150;
+      const controlY2 = baseY + (yearIndex % 2 === 0 ? 80 : -80);
+      
+      timelinePath += ` C${controlX1},${controlY1} ${controlX2},${controlY2} ${baseX},${baseY}`;
+    }
+    
+    // Continue the path through the year
+    const endX = baseX + 300;
+    timelinePath += ` Q${baseX + 150},${baseY + (yearIndex % 2 === 0 ? 40 : -40)} ${endX},${baseY}`;
   });
 
   return (
@@ -232,8 +331,8 @@ export default function MemoriesPage() {
         <div className="container px-4 mx-auto">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-rose-800">Our Memories</h1>
-              <p className="text-rose-600">Moments frozen in time</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-rose-800">Memory Journey</h1>
+              <p className="text-rose-600">Follow the path of your love story</p>
             </div>
             <Button 
               onClick={handleNewMemory}
@@ -244,112 +343,239 @@ export default function MemoriesPage() {
             </Button>
           </div>
           
-          {/* Polaroid Gallery */}
+          {/* Timeline Container */}
           <div 
-            ref={galleryRef}
-            className="relative w-full bg-[#f8f9fa] border border-gray-200 rounded-xl p-4 md:p-8 min-h-[70vh] overflow-hidden"
+            className="w-full overflow-hidden border border-rose-100 rounded-xl bg-white shadow-md"
+            style={{ 
+              height: 'calc(100vh - 200px)',
+              minHeight: '500px',
+              position: 'relative'
+            }}
           >
-            {/* Cork board background texture */}
-            <div className="absolute inset-0 bg-[url('/cork-board.png')] opacity-20"></div>
-            
-            {/* Polaroid Cards */}
-            <div className="relative">
-              {sortedMemories.map((memory, index) => {
-                const id = memory.id || `memory-${index}`;
-                const pos = positions[id] || { x: 0, y: 0, rotation: 0 };
-                const isSpecial = memory.tags.some(tag => 
-                  ["Anniversary", "First Date", "Birthday", "Holiday"].includes(tag)
-                );
-                
-                return (
-                  <motion.div
-                    key={id}
-                    className={cn(
-                      "absolute bg-white rounded-md p-3 pb-8 shadow-md cursor-grab active:cursor-grabbing",
-                      draggingId === id ? "z-50" : "z-10"
-                    )}
-                    style={{
-                      width: '240px',
-                      originX: 0.5,
-                      originY: 0.5,
-                      left: `calc(${index % 4 * 25 + 5}% + ${pos.x}px)`,
-                      top: `calc(${Math.floor(index / 4) * 280 + 30}px + ${pos.y}px)`,
-                    }}
-                    initial={{
-                      rotate: pos.rotation,
-                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
-                    }}
-                    animate={{
-                      rotate: pos.rotation,
-                      boxShadow: draggingId === id
-                        ? "0 10px 25px rgba(0, 0, 0, 0.2)"
-                        : "0 4px 6px rgba(0, 0, 0, 0.1)",
-                      scale: draggingId === id ? 1.05 : 1
-                    }}
-                    whileHover={{
-                      boxShadow: "0 8px 15px rgba(0, 0, 0, 0.15)",
-                      scale: 1.02,
-                      transition: { duration: 0.2 }
-                    }}
-                    drag
-                    dragMomentum={false}
-                    onDragStart={() => handleDragStart(id)}
-                    onDragEnd={(e, info) => handleDragEnd(id, info)}
-                    onDoubleClick={() => handleFlipCard(id)}
-                  >
-                    {/* Polaroid Image */}
-                    <div className="relative">
-                      <div className="relative w-full aspect-square overflow-hidden mb-2">
-                        <Image
-                          src={memory.mediaUrl}
-                          alt={memory.caption}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      
-                      {/* Special tag for important memories */}
-                      {isSpecial && (
-                        <div className="absolute top-2 right-2 bg-amber-400 rounded-full p-1 shadow-sm z-20">
-                          <Star className="h-3 w-3 text-white" />
-                        </div>
-                      )}
-                      
-                      {/* Polaroid caption */}
-                      <div onClick={() => handleViewMemory(memory)} className="cursor-pointer">
-                        <p className="text-center text-sm font-medium text-gray-800 truncate mb-1">
-                          {memory.caption}
-                        </p>
-                        
-                        {/* Date in handwritten style */}
-                        <p 
-                          className="text-center text-xs text-gray-600 font-handwriting"
-                          style={{ fontFamily: "'Caveat', cursive" }}
+            {/* Timeline Board */}
+            <div
+              ref={timelineRef}
+              className="w-full h-full overflow-auto p-4 md:p-8 cursor-grab"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              style={{ 
+                position: 'relative',
+                transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+              }}
+            >
+              <div 
+                className="relative"
+                style={{ 
+                  transform: `translate(${viewPosition.x}px, ${viewPosition.y}px)`,
+                  width: '3000px',
+                  height: '1500px'
+                }}
+              >
+                {/* Legend */}
+                <div className="absolute top-6 left-6 bg-white/80 backdrop-blur-sm p-3 rounded-lg border border-rose-100 shadow-sm z-10">
+                  <div className="text-sm font-medium text-rose-800 mb-2">Memory Map</div>
+                  <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
+                    <div className="w-3 h-3 rounded-full bg-rose-500"></div>
+                    <span>Special Moments</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
+                    <div className="w-6 h-2 bg-gradient-to-r from-rose-300 to-amber-200 rounded-full"></div>
+                    <span>Journey Path</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-600">
+                    <Star className="w-3 h-3 text-amber-400" />
+                    <span>Milestone</span>
+                  </div>
+                </div>
+
+                {/* SVG for the memory journey path */}
+                <svg 
+                  width="100%" 
+                  height="100%" 
+                  viewBox="0 0 3000 1000" 
+                  preserveAspectRatio="none"
+                >
+                  <defs>
+                    {/* Gradient for the path */}
+                    <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#f9a8d4" />
+                      <stop offset="50%" stopColor="#fdba74" />
+                      <stop offset="100%" stopColor="#fcd34d" />
+                    </linearGradient>
+                    
+                    {/* Glowing dot gradient */}
+                    <radialGradient id="glowingDot" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                      <stop offset="0%" stopColor="#fff" stopOpacity="0.9" />
+                      <stop offset="70%" stopColor="#fda4af" stopOpacity="0.7" />
+                      <stop offset="100%" stopColor="#fb7185" stopOpacity="0.5" />
+                    </radialGradient>
+                    
+                    {/* Glow filter */}
+                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="4" result="blur" />
+                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                  </defs>
+                  
+                  {/* The curved timeline path with gradient */}
+                  <path
+                    d={timelinePath}
+                    fill="none"
+                    stroke="url(#pathGradient)"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="opacity-80"
+                  />
+                  
+                  {/* Animated traveler on the path */}
+                  <PathTraveler pathLength={timelinePath} />
+                  
+                  {/* Year Labels */}
+                  {memoryYears.map((year, yearIndex) => {
+                    const baseX = yearIndex * 600 + 150;
+                    const baseY = 200 + (yearIndex % 2 === 0 ? -30 : 30);
+                    
+                    return (
+                      <g key={year}>
+                        <text
+                          x={baseX - 10}
+                          y={baseY - 50}
+                          fontSize="48"
+                          fontWeight="bold"
+                          fill="#fda4af"
+                          opacity="0.4"
+                          textAnchor="start"
                         >
-                          {format(new Date(memory.date), "MMMM d, yyyy")}
-                        </p>
-                      </div>
-                      
-                      {/* Tape effect */}
-                      <div className="absolute top-[-8px] left-[50%] w-16 h-8 bg-[#ffffff98] transform -translate-x-1/2 opacity-40"></div>
+                          {year}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </svg>
+                
+                {/* Memory nodes for each item */}
+                {memoryYears.map((year, yearIndex) => {
+                  const yearMemories = sortedMemories.filter(memory => 
+                    new Date(memory.date).getFullYear() === year
+                  );
+                  
+                  // Sort by month
+                  yearMemories.sort((a, b) => 
+                    new Date(a.date).getMonth() - new Date(b.date).getMonth()
+                  );
+                  
+                  // Base coordinates for this year's timeline section
+                  const baseX = yearIndex * 600 + 150;
+                  const baseY = 200 + (yearIndex % 2 === 0 ? -30 : 30);
+                  
+                  return (
+                    <div key={year} className="relative">
+                      {yearMemories.map((memory, memoryIndex) => {
+                        const memoryDate = new Date(memory.date);
+                        const month = memoryDate.getMonth();
+                        const isSpecial = memory.tags.some(tag => 
+                          ["Anniversary", "First Date", "Birthday", "Holiday"].includes(tag)
+                        );
+                        
+                        // Calculate positions along the curved path
+                        // This is a simplified calculation - in a real app you'd need to calculate
+                        // positions along the Bezier curve more precisely
+                        const xOffset = (month + 1) * 25; 
+                        const posX = baseX + xOffset;
+                        
+                        // Add some variation in Y position based on memory index
+                        const yOffset = (memoryIndex % 3 - 1) * 40;
+                        const posY = baseY + yOffset;
+                        
+                        return (
+                          <motion.div 
+                            key={memory.id || memoryIndex}
+                            className="absolute"
+                            style={{
+                              left: `${posX - 30}px`,
+                              top: `${posY - 30}px`,
+                              zIndex: 20
+                            }}
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ 
+                              type: "spring", 
+                              delay: memoryIndex * 0.1, 
+                              duration: 0.5 
+                            }}
+                          >
+                            {/* Memory Node */}
+                            <div 
+                              className="w-[60px] h-[60px] rounded-full overflow-hidden border-3 shadow-lg cursor-pointer transition-transform hover:scale-110"
+                              style={{
+                                borderColor: isSpecial ? '#fb7185' : '#fda4af' 
+                              }}
+                              onClick={() => handleViewMemory(memory)}
+                            >
+                              <div className="relative w-full h-full">
+                                <Image
+                                  src={memory.mediaUrl}
+                                  alt={memory.caption}
+                                  fill
+                                  className="object-cover"
+                                />
+                                
+                                {/* Overlay with radial gradient */}
+                                <div className="absolute inset-0 bg-gradient-to-tr from-rose-500/30 to-transparent opacity-50"></div>
+                                
+                                {/* Milestone indicator */}
+                                {isSpecial && (
+                                  <motion.div 
+                                    className="absolute -top-1 -right-1 bg-amber-400 rounded-full p-1 shadow-sm"
+                                    animate={{ 
+                                      scale: [1, 1.2, 1], 
+                                      rotate: [0, 5, 0, -5, 0] 
+                                    }}
+                                    transition={{ 
+                                      duration: 3, 
+                                      repeat: Infinity, 
+                                      repeatType: "reverse" 
+                                    }}
+                                  >
+                                    <Star className="h-3 w-3 text-white" />
+                                  </motion.div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Date label */}
+                            <motion.div 
+                              className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white/95 px-2 py-0.5 rounded text-xs font-handwriting text-gray-700 whitespace-nowrap shadow-sm border border-gray-100"
+                              initial={{ y: 10, opacity: 0 }}
+                              animate={{ y: 0, opacity: 1 }}
+                              transition={{ delay: memoryIndex * 0.1 + 0.3 }}
+                              style={{ fontFamily: "'Caveat', cursive" }}
+                            >
+                              {format(memoryDate, "MMM d")}
+                            </motion.div>
+                          </motion.div>
+                        );
+                      })}
                     </div>
-                  </motion.div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
             
-            {/* Instructions */}
+            {/* Instructions Overlay */}
             <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-2 rounded-lg text-xs text-gray-600 border border-rose-100 shadow-sm">
-              <div className="flex flex-col gap-1">
-                <span>• Drag to rearrange</span>
-                <span>• Double-click to flip</span>
-                <span>• Click caption to view details</span>
+              <div className="flex items-center gap-1">
+                <span>Drag to navigate</span>
+                <span className="px-1 py-0.5 bg-gray-100 rounded">Click a memory to view</span>
               </div>
             </div>
           </div>
           
           <div className="mt-6 text-center text-sm text-gray-500">
-            <p>Your love story has {displayMemories.length} cherished memories and counting...</p>
+            <p>Your love story has {displayMemories.length} chapters and counting...</p>
           </div>
         </div>
       </div>
