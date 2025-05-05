@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="80" fill="#F0F8FF" />
+  
+  <!-- Head -->
+  <circle cx="100" cy="95" r="55" fill="#FEE0D2" />
+  
+  <!-- Hair -->
+  <path d="M45 90c0-30 25-55 55-55s55 25 55 55c0 0-5 45-55 45s-55-45-55-45z" fill="#4A2C17" />
+  
+  <!-- Long side hair -->
+  <path d="M45 90c-5 10-5 40 10 55" stroke="#4A2C17" stroke-width="14" fill="none" />
+  <path d="M155 90c5 10 5 40-10 55" stroke="#4A2C17" stroke-width="14" fill="none" />
+  
+  <!-- Bangs -->
+  <path d="M100 50c-25 0-35 15-40 25 10-5 25-10 40-10s30 5 40 10c-5-10-15-25-40-25z" fill="#4A2C17" />
+  
+  <!-- Eyes -->
+  <ellipse cx="80" cy="90" rx="9" ry="10" fill="white" />
+  <ellipse cx="120" cy="90" rx="9" ry="10" fill="white" />
+  <circle cx="80" cy="92" r="4.5" fill="#5B92A9" />
+  <circle cx="120" cy="92" r="4.5" fill="#5B92A9" />
+  <circle cx="83" cy="90" r="2" fill="white" />
+  <circle cx="123" cy="90" r="2" fill="white" />
+  
+  <!-- Eyelashes -->
+  <line x1="74" y1="83" x2="71" y2="79" stroke="#333" stroke-width="1.5" />
+  <line x1="80" y1="82" x2="80" y2="78" stroke="#333" stroke-width="1.5" />
+  <line x1="86" y1="83" x2="89" y2="79" stroke="#333" stroke-width="1.5" />
+  <line x1="114" y1="83" x2="111" y2="79" stroke="#333" stroke-width="1.5" />
+  <line x1="120" y1="82" x2="120" y2="78" stroke="#333" stroke-width="1.5" />
+  <line x1="126" y1="83" x2="129" y2="79" stroke="#333" stroke-width="1.5" />
+  
+  <!-- Blush -->
+  <ellipse cx="70" cy="105" rx="10" ry="6" fill="#F78FA7" opacity="0.5" />
+  <ellipse cx="130" cy="105" rx="10" ry="6" fill="#F78FA7" opacity="0.5" />
+  
+  <!-- Eyebrows -->
+  <path d="M72 78c0 0 6-4 12 0" stroke="#4A2C17" stroke-width="2" stroke-linecap="round" fill="none" />
+  <path d="M116 78c0 0 6-4 12 0" stroke="#4A2C17" stroke-width="2" stroke-linecap="round" fill="none" />
+  
+  <!-- Mouth -->
+  <path d="M90 112c0 0 5 5 10 5s10-5 10-5" stroke="#FF7E7E" stroke-width="2" fill="none" />
+  
+  <!-- Body/Top -->
+  <path d="M70 150c0 0 10-20 30-20s30 20 30 20v30H70v-30z" fill="#9AD1D4" />
+  
+  <!-- Necklace -->
+  <path d="M85 150c0 0 5 5 15 5s15-5 15-5" stroke="#FFD700" stroke-width="2" fill="none" />
+  <circle cx="100" cy="155" r="3" fill="#C8DEFD" />
+  
+  <!-- Hair accessories -->
+  <circle cx="130" cy="80" r="6" fill="#9AD1D4" />
+  <circle cx="135" cy="80" r="4" fill="#C8DEFD" />
+</svg> 

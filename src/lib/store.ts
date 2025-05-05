@@ -31,19 +31,59 @@ type User = {
   name: string;
   email: string;
   avatar?: string;
+  avatarId?: string; // ID of selected SVG avatar
   mood?: Mood;
   moodNote?: string;
   moodLastUpdated?: Date;
   theme?: string;
+  // Profile information for gift suggestions
+  gender?: string;
+  birthdate?: Date;
+  hobbies?: string[];
+  foodPreferences?: string[];
+  favoriteColors?: string[];
+  interests?: string[];
+  clothingSize?: string;
+  shoeSize?: string;
+  favoriteStores?: string[];
+  wishlist?: string[];
+  // Indian cultural preferences
+  indianCuisines?: string[];
+  favoriteFestivals?: string[];
+  traditionalClothing?: string[];
+  homeState?: string;
+  motherTongue?: string;
+  musicPreference?: string[];
+  profileCompleted?: boolean;
 }
 
 type Partner = {
   id: string | null;
   name: string | null;
   avatar?: string;
+  avatarId?: string; // ID of selected SVG avatar
   mood?: Mood;
   moodNote?: string;
   moodLastUpdated?: Date;
+  // Profile information for gift suggestions
+  gender?: string;
+  birthdate?: Date;
+  hobbies?: string[];
+  foodPreferences?: string[];
+  favoriteColors?: string[];
+  interests?: string[];
+  clothingSize?: string;
+  shoeSize?: string;
+  favoriteStores?: string[];
+  wishlist?: string[];
+  // Indian cultural preferences
+  indianCuisines?: string[];
+  favoriteFestivals?: string[];
+  traditionalClothing?: string[];
+  homeState?: string;
+  motherTongue?: string;
+  musicPreference?: string[];
+  profileCompleted?: boolean;
 }
 
 type JournalEntry = {
@@ -100,6 +140,14 @@ type AppTheme = {
   backgroundMusic?: string;
 }
 
+export type PageTheme = {
+  route: string;
+  themeName: string;
+  primaryColor: string; // hex color or CSS color value
+  secondaryColor?: string; // optional secondary/gradient color
+  isGradient?: boolean;
+}
+
 type UsSpaceStore = {
   user: User | null;
   partner: Partner | null;
@@ -110,14 +158,27 @@ type UsSpaceStore = {
   milestones: Milestone[];
   quizzes: Quiz[];
   themes: AppTheme[];
+  pageThemes: PageTheme[];
   currentTheme: string;
   isAuthenticated: boolean;
+  gameScores: {
+    user: number;
+    partner: number;
+    history: {
+      gameType: string;
+      winner: 'user' | 'partner' | 'tie';
+      date: Date;
+      score?: { user: number; partner: number };
+    }[];
+  };
 
   // Auth actions
   setUser: (user: User | null) => void;
   setPartner: (partner: Partner | null) => void;
   setAuthenticated: (isAuthenticated: boolean) => void;
   logout: () => void;
+  updateUserProfile: (profileData: Partial<User>) => void;
+  updatePartnerProfile: (profileData: Partial<Partner>) => void;
 
   // Mood actions
   updateUserMood: (mood: Mood, note?: string) => void;
@@ -156,6 +217,16 @@ type UsSpaceStore = {
   // Theme actions
   addTheme: (theme: Omit<AppTheme, 'id'>) => void;
   setCurrentTheme: (themeId: string) => void;
+  
+  // Page theme actions
+  addPageTheme: (pageTheme: PageTheme) => void;
+  updatePageTheme: (route: string, pageTheme: Partial<PageTheme>) => void;
+  deletePageTheme: (route: string) => void;
+  getPageTheme: (route: string) => PageTheme | null;
+
+  // Game actions
+  addGameResult: (gameType: string, winner: 'user' | 'partner' | 'tie', score?: { user: number; partner: number }) => void;
+  resetGameScores: () => void;
 }
 
 // Default themes
@@ -188,6 +259,59 @@ const defaultThemes: AppTheme[] = [
     secondaryColor: '#bfdbfe', // Blue-200
     doodleStyle: 'classic',
   },
+];
+
+// Default page themes
+const defaultPageThemes: PageTheme[] = [
+  {
+    route: '/couples',
+    themeName: 'Rose',
+    primaryColor: '#e11d48',
+    secondaryColor: '#fb7185',
+    isGradient: true
+  },
+  {
+    route: '/memories',
+    themeName: 'Amber',
+    primaryColor: '#f59e0b',
+    secondaryColor: '#fbbf24',
+    isGradient: true
+  },
+  {
+    route: '/events',
+    themeName: 'Rose',
+    primaryColor: '#e11d48',
+    secondaryColor: '#fb7185',
+    isGradient: true
+  },
+  {
+    route: '/listen-together',
+    themeName: 'Rose Amber',
+    primaryColor: '#be123c',
+    secondaryColor: '#f59e0b',
+    isGradient: true
+  },
+  {
+    route: '/chat',
+    themeName: 'Light Blue',
+    primaryColor: '#3b82f6',
+    secondaryColor: '#93c5fd',
+    isGradient: true
+  },
+  {
+    route: '/games',
+    themeName: 'Light Pink',
+    primaryColor: '#ec4899',
+    secondaryColor: '#f9a8d4',
+    isGradient: true
+  },
+  {
+    route: '/settings',
+    themeName: 'Rose',
+    primaryColor: '#e11d48',
+    secondaryColor: '#fb7185',
+    isGradient: true
+  }
 ];
 
 // Helper function to generate IDs
@@ -246,14 +370,26 @@ export const useStore = create<UsSpaceStore>()(
       milestones: [],
       quizzes: [],
       themes: defaultThemes,
-      currentTheme: 'classic',
+      pageThemes: defaultPageThemes,
+      currentTheme: defaultThemes[0].id,
       isAuthenticated: false,
+      gameScores: {
+        user: 0,
+        partner: 0,
+        history: []
+      },
 
       // Auth actions
       setUser: (user) => set({ user }),
       setPartner: (partner) => set({ partner }),
       setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
       logout: () => set({ user: null, partner: null, isAuthenticated: false }),
+      updateUserProfile: (profileData) => set((state) => ({
+        user: state.user ? { ...state.user, ...profileData } : null
+      })),
+      updatePartnerProfile: (profileData) => set((state) => ({
+        partner: state.partner ? { ...state.partner, ...profileData } : null
+      })),
 
       // Mood actions
       updateUserMood: (mood, note) => set((state) => ({
@@ -352,10 +488,94 @@ export const useStore = create<UsSpaceStore>()(
       })),
 
       // Theme actions
-      addTheme: (theme) => set((state) => ({
-        themes: [...state.themes, { ...theme, id: generateId() }]
-      })),
+      addTheme: (theme) => {
+        const id = theme.name.toLowerCase().replace(/\s+/g, '-');
+        set((state) => ({
+          themes: [...state.themes, { ...theme, id }],
+          currentTheme: id
+        }));
+      },
       setCurrentTheme: (themeId) => set({ currentTheme: themeId }),
+      
+      // Page theme actions
+      addPageTheme: (pageTheme) => {
+        set((state) => {
+          // First check if a theme for this route already exists
+          const existingThemeIndex = state.pageThemes.findIndex(
+            theme => theme.route === pageTheme.route
+          );
+          
+          if (existingThemeIndex >= 0) {
+            // Update existing theme
+            const updatedThemes = [...state.pageThemes];
+            updatedThemes[existingThemeIndex] = pageTheme;
+            return { pageThemes: updatedThemes };
+          } else {
+            // Add new theme
+            return { pageThemes: [...state.pageThemes, pageTheme] };
+          }
+        });
+      },
+      
+      updatePageTheme: (route, updates) => {
+        set((state) => {
+          const existingThemeIndex = state.pageThemes.findIndex(
+            theme => theme.route === route
+          );
+          
+          if (existingThemeIndex >= 0) {
+            const updatedThemes = [...state.pageThemes];
+            updatedThemes[existingThemeIndex] = {
+              ...updatedThemes[existingThemeIndex],
+              ...updates
+            };
+            return { pageThemes: updatedThemes };
+          }
+          
+          return state;
+        });
+      },
+      
+      deletePageTheme: (route) => {
+        set((state) => ({
+          pageThemes: state.pageThemes.filter(theme => theme.route !== route)
+        }));
+      },
+      
+      getPageTheme: (route) => {
+        return get().pageThemes.find(theme => theme.route === route) || null;
+      },
+
+      // Game actions
+      addGameResult: (gameType, winner, score) => set(state => {
+        const newHistory = [...state.gameScores.history, {
+          gameType,
+          winner,
+          date: new Date(),
+          score
+        }];
+        
+        let userScore = state.gameScores.user;
+        let partnerScore = state.gameScores.partner;
+        
+        if (winner === 'user') userScore += 1;
+        if (winner === 'partner') partnerScore += 1;
+        
+        return {
+          gameScores: {
+            user: userScore,
+            partner: partnerScore,
+            history: newHistory
+          }
+        };
+      }),
+      resetGameScores: () => set({
+        gameScores: {
+          user: 0,
+          partner: 0,
+          history: []
+        }
+      }),
     }),
     {
       name: 'usspace-storage',

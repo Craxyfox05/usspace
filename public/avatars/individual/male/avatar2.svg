@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="80" fill="#F0F7FF" />
+  
+  <!-- Head -->
+  <circle cx="100" cy="95" r="55" fill="#FFE2C0" />
+  
+  <!-- Hair -->
+  <path d="M60 60c0 0-15 15-15 35s5 35 15 50c0-15 10-30 40-30s40 15 40 30c10-15 15-30 15-50s-15-35-15-35c-20-15-60-15-80 0z" fill="#36221C" />
+  
+  <!-- Hair top -->
+  <path d="M60 60c0 0 20-25 80 0" stroke="#36221C" stroke-width="20" stroke-linecap="round" fill="none" />
+  
+  <!-- Hair details -->
+  <path d="M85 55c-5 5-5 15-5 15M115 55c5 5 5 15 5 15" stroke="#36221C" stroke-width="4" fill="none" />
+  
+  <!-- Eyes -->
+  <ellipse cx="80" cy="95" rx="7" ry="8" fill="white" />
+  <ellipse cx="120" cy="95" rx="7" ry="8" fill="white" />
+  <circle cx="80" cy="96" r="4" fill="#2F4F4F" />
+  <circle cx="120" cy="96" r="4" fill="#2F4F4F" />
+  <circle cx="82" cy="94" r="1.5" fill="white" />
+  <circle cx="122" cy="94" r="1.5" fill="white" />
+  
+  <!-- Eyebrows -->
+  <path d="M70 82c0 0 5-4 15 0" stroke="#36221C" stroke-width="2.5" stroke-linecap="round" fill="none" />
+  <path d="M115 82c0 0 5-4 15 0" stroke="#36221C" stroke-width="2.5" stroke-linecap="round" fill="none" />
+  
+  <!-- Smile -->
+  <path d="M90 115c0 0 3 5 10 5s10-5 10-5" stroke="#FF6B6B" stroke-width="2" fill="none" />
+  
+  <!-- Blush - very subtle for male -->
+  <ellipse cx="70" cy="110" rx="7" ry="3" fill="#FF9999" opacity="0.2" />
+  <ellipse cx="130" cy="110" rx="7" ry="3" fill="#FF9999" opacity="0.2" />
+  
+  <!-- Body/Hoodie -->
+  <path d="M70 150c0 0 10-20 30-20s30 20 30 20v30H70v-30z" fill="#59886D" />
+  
+  <!-- Hoodie details -->
+  <path d="M85 140c0 0 5-5 15-5s15 5 15 5" stroke="#477559" stroke-width="3" fill="none" />
+  <path d="M70 150l10-10M130 150l-10-10" stroke="#477559" stroke-width="2" fill="none" />
+  
+  <!-- Hood string -->
+  <path d="M95 150l-5 15M105 150l5 15" stroke="white" stroke-width="1.5" fill="none" />
+  <circle cx="90" cy="165" r="2" fill="white" />
+  <circle cx="110" cy="165" r="2" fill="white" />
+</svg> 

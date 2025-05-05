@@ -1,7 +1,10 @@
+'use client';
+
 import type React from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import DoodleBackground from '../doodles/DoodleBackground';
+import usePageTheme from '@/hooks/usePageTheme';
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -16,6 +19,9 @@ export default function PageLayout({
   hideFooter = false,
   hideDoodles = false
 }: PageLayoutProps) {
+  // Apply page theme based on current route
+  usePageTheme();
+  
   return (
     <div className="flex flex-col min-h-screen relative">
       {!hideDoodles && <DoodleBackground />}

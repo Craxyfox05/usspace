@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="phone-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F5F5F5" />
+    </linearGradient>
+    <linearGradient id="screen-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F0F8FF" />
+      <stop offset="100%" stop-color="#E6F2FF" />
+    </linearGradient>
+  </defs>
+  <rect x="30" y="15" width="40" height="70" rx="8" fill="url(#phone-gradient)" stroke="#CCCCCC" stroke-width="2"/>
+  <rect x="35" y="25" width="30" height="40" rx="2" fill="url(#screen-gradient)"/>
+  <circle cx="50" cy="75" r="5" fill="#F0F0F0" stroke="#CCCCCC" stroke-width="1"/>
+  <rect x="43" y="20" width="14" height="2" rx="1" fill="#CCCCCC"/>
+  <path d="M40 50L45 55L60 40" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+  
+  <!-- Add subtle UI elements -->
+  <rect x="40" y="30" width="20" height="2" rx="1" fill="#E0E0E0"/>
+  <rect x="40" y="35" width="15" height="2" rx="1" fill="#E0E0E0"/>
+  <circle cx="50" cy="75" r="3" fill="#F8F8F8"/>
+</svg> 

@@ -44,13 +44,33 @@ export default function Home() {
         <p className="text-lg md:text-xl text-gray-700 mb-10 max-w-xl">
           Celebrate your journey, share moods, relive memories — no matter the distance.
         </p>
-        <div className="mt-2">
+        <div className="flex flex-col sm:flex-row gap-4 mt-2">
           <Link
             href="/signup"
             className="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-full text-lg font-semibold transition inline-block"
           >
             Start Creating 🌸
           </Link>
+          <Link
+            href="/login?demo=true"
+            className="bg-white border border-red-500 text-red-500 hover:bg-red-50 px-8 py-4 rounded-full text-lg font-semibold transition inline-block"
+          >
+            Try Demo
+          </Link>
+        </div>
+        
+        {/* Partner Connection Section */}
+        <div className="mt-16 max-w-xl">
+          <h2 className="text-2xl font-bold mb-4">Already have an account?</h2>
+          <div className="bg-gray-50 p-6 rounded-xl">
+            <p className="mb-4">Did your partner invite you to join? Accept their invitation to connect and start sharing memories.</p>
+            <Link
+              href="/login?invited=true"
+              className="bg-red-100 text-red-700 hover:bg-red-200 px-6 py-3 rounded-full text-base font-medium transition inline-block"
+            >
+              I have an invitation
+            </Link>
+          </div>
         </div>
       </section>
 

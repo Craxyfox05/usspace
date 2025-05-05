@@ -3,146 +3,175 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PageLayout from "@/components/layout/PageLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useStore, type Memory } from "@/lib/store";
 import Link from "next/link";
-import { format, differenceInDays } from "date-fns";
+import { format } from "date-fns";
 import Image from "next/image";
+import InvitePartnerDialog from "@/components/couples/InvitePartnerDialog";
+import EnhancedBirthdayCountdown from "@/components/dashboard/EnhancedBirthdayCountdown";
+import GiftSuggestions from "@/components/dashboard/GiftSuggestions";
+import { UserCog } from "lucide-react";
+import RelationshipStreaks from "@/components/relationship/RelationshipStreaks";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, partner, isAuthenticated, memories, events } = useStore();
+  const { user, partner, isAuthenticated, events } = useStore();
+  const [showInvitePartner, setShowInvitePartner] = useState(false);
   const [randomMemory, setRandomMemory] = useState<Memory | null>(null);
+  const [nextEvent, setNextEvent] = useState<any>(null);
+  const [daysToNextEvent, setDaysToNextEvent] = useState<number | null>(null);
 
-  // Auth check
+  // Handle auth status
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login");
     }
   }, [isAuthenticated, router]);
 
-  if (!isAuthenticated || !user) {
-    return null;
-  }
-
-  // Get today's date
-  const today = new Date();
-  const formattedDate = format(today, "EEEE, MMMM d, yyyy");
-
-  // Get random memory (or the first one)
+  // Get random memory
   useEffect(() => {
-    if (memories && memories.length > 0) {
-      setRandomMemory(memories[Math.floor(Math.random() * memories.length)]);
-    }
-  }, [memories]);
+    const getRandomMemory = () => {
+      const memories = useStore.getState().memories;
+      if (memories && memories.length > 0) {
+        const randomIndex = Math.floor(Math.random() * memories.length);
+        setRandomMemory(memories[randomIndex]);
+      }
+    };
 
-  // Get upcoming events
-  const upcomingEvents = events
-    ? events
-        .filter(event => new Date(event.date) > today)
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    : [];
+    getRandomMemory();
+    
+    // Set up interval to rotate memories every 2 hours
+    const interval = setInterval(getRandomMemory, 7200000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
-  const nextEvent = upcomingEvents.length > 0 ? upcomingEvents[0] : null;
+  // Get next event
+  useEffect(() => {
+    const calculateNextEvent = () => {
+      if (!events || events.length === 0) {
+        setNextEvent(null);
+        setDaysToNextEvent(null);
+        return;
+      }
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Get upcoming or today's events
+      const upcomingEvents = events
+        .filter(event => {
+          const eventDate = new Date(event.date);
+          eventDate.setHours(0, 0, 0, 0);
+          return eventDate >= today;
+        })
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      
+      if (upcomingEvents.length > 0) {
+        const next = upcomingEvents[0];
+        setNextEvent(next);
+        
+        // Calculate days
+        const eventDate = new Date(next.date);
+        eventDate.setHours(0, 0, 0, 0);
+        const diffTime = eventDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        setDaysToNextEvent(diffDays);
+      } else {
+        setNextEvent(null);
+        setDaysToNextEvent(null);
+      }
+    };
+    
+    calculateNextEvent();
+  }, [events]);
 
-  // Calculate days to next event
-  const daysToNextEvent = nextEvent
-    ? Math.ceil((new Date(nextEvent.date).getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-    : null;
-
-  // Render mood emoji
-  const renderMoodEmoji = (mood: 'happy' | 'neutral' | 'sad' | 'excited' | 'tired' | 'loved' | null | undefined) => {
-    switch (mood) {
-      case "happy": return "😊";
-      case "neutral": return "😐";
-      case "sad": return "😔";
-      case "excited": return "🤩";
-      case "tired": return "😴";
-      case "loved": return "🥰";
-      default: return "❓";
-    }
-  };
+  if (!user) return null;
 
   return (
     <PageLayout>
-      <div className="container max-w-4xl py-8 px-4">
-        <h1 className="text-3xl md:text-4xl font-bold mb-6 cursive">Welcome, {user.name}!</h1>
-
-        {/* Today's Date */}
-        <div className="mb-8 text-lg text-gray-600">
-          <span className="font-semibold">Today is:</span> {formattedDate}
-        </div>
-
-        {/* Couples Space Card */}
-        <Card className="mb-6 overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-red-50 to-pink-50 pb-0">
-            <CardTitle className="text-xl font-semibold">Explore Our Couple Space 💕</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row items-center gap-6 justify-between">
-              <div>
-                <p className="mb-4">Discover all our special features in one place - memories, games, journal, and more!</p>
-                <Button asChild>
-                  <Link href="/couples">Go to Couple Space</Link>
-                </Button>
-              </div>
-              <div className="hidden sm:block">
-                <div className="flex -space-x-4">
-                  <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-2xl">
-                    🎁
-                  </div>
-                  <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center text-2xl">
-                    💕
-                  </div>
-                  <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center text-2xl">
-                    🎮
-                  </div>
-                </div>
-              </div>
+      
+      <div className="container max-w-7xl py-8 px-4">
+        {/* Welcome and Partner Link */}
+        <div className="flex flex-col sm:flex-row justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold cursive">Hello, {user?.name || "Friend"}!</h1>
+            <p className="text-muted-foreground mt-1">Here's what's happening in your relationship</p>
+          </div>
+          
+          {!partner && (
+            <div className="mt-4 sm:mt-0">
+              <Button onClick={() => setShowInvitePartner(true)}>
+                Connect with Partner
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Partner's Mood */}
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-red-50 pb-0">
-              <CardTitle className="text-xl font-semibold">Partner's Mood</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              {partner ? (
-                <div className="flex flex-col items-center text-center gap-4">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={partner.avatar || ""} alt={partner.name || ""} />
-                    <AvatarFallback>{partner.name?.charAt(0) || "?"}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="text-4xl mb-2">{renderMoodEmoji(partner.mood)}</div>
-                    <h3 className="font-semibold mb-1">{partner.name} is feeling {partner.mood || "unknown"}</h3>
-                    {partner.moodNote && (
-                      <p className="text-gray-600 italic">"{partner.moodNote}"</p>
-                    )}
-                    {partner.moodLastUpdated && (
-                      <p className="text-xs text-gray-500 mt-2">
-                        Updated {format(new Date(partner.moodLastUpdated), "h:mm a")}
-                      </p>
-                    )}
-                  </div>
-                  <Button variant="outline" asChild className="mt-2">
-                    <Link href="/mood">Update Your Mood</Link>
+          )}
+        </div>
+        
+        {/* Main Dashboard Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Relationship Profile Completion Card */}
+          {!user.profileCompleted && (
+            <Card className="md:col-span-2 lg:col-span-3 bg-red-50 border-red-100">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl font-semibold">Complete Your Profile</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col sm:flex-row justify-between items-center">
+                  <p className="mb-4 sm:mb-0 text-gray-600">
+                    Take a moment to complete your profile to get personalized features.
+                  </p>
+                  <Button asChild className="whitespace-nowrap">
+                    <Link href="/dashboard/survey">
+                      <UserCog className="mr-2 h-4 w-4" />
+                      Complete Profile
+                    </Link>
                   </Button>
                 </div>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="mb-4">You haven't connected with your partner yet.</p>
-                  <Button variant="outline">Invite Partner</Button>
-                </div>
-              )}
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Relationship Status Card */}
+          <Card className="md:col-span-2 overflow-hidden">
+            <CardHeader className="bg-red-50 pb-0">
+              <CardTitle className="text-xl font-semibold">Relationship Status</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="flex flex-col md:flex-row gap-6 md:items-center">
+                {partner ? (
+                  <>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg mb-2">Connected with {partner.name}</h3>
+                      <p className="text-gray-600">
+                        You are in a relationship with {partner.name}. 
+                        Share memories, plan events, and keep track of special moments together.
+                      </p>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <RelationshipStreaks size="lg" />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg mb-2">No Partner Connected</h3>
+                      <p className="text-gray-600">
+                        Invite your partner to join UsSpace. Share memories, plan events, and track special moments together.
+                      </p>
+                    </div>
+                    <Button onClick={() => setShowInvitePartner(true)}>
+                      Connect with Partner
+                    </Button>
+                  </>
+                )}
+              </div>
             </CardContent>
           </Card>
-
+          
           {/* Memory of the Day */}
           <Card className="overflow-hidden">
             <CardHeader className="bg-red-50 pb-0">
@@ -166,6 +195,30 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
+          {/* Partner Birthday Countdown */}
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-red-50 pb-0">
+              <CardTitle className="text-xl font-semibold">Birthday Countdown</CardTitle>
+              <CardDescription>
+                Only you can update your own birthday. Your partner updates theirs.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-4 pb-0">
+              <EnhancedBirthdayCountdown type="partner" />
+            </CardContent>
+          </Card>
+
+          {/* Gift Suggestions */}
+          <Card className="overflow-hidden md:col-span-2">
+            <CardContent className="p-0">
+              <GiftSuggestions 
+                forPartner={partner !== null}
+                preferences={partner || undefined}
+                partnerName={partner?.name || "partner"}
+              />
+            </CardContent>
+          </Card>
+
           {/* Upcoming Event */}
           <Card className="md:col-span-2 overflow-hidden">
             <CardHeader className="bg-red-50 pb-0">
@@ -180,28 +233,25 @@ export default function DashboardPage() {
                         {nextEvent.type === "birthday" ? "🎂" :
                          nextEvent.type === "anniversary" ? "💍" : "🎉"}
                       </span>
-                      <h3 className="text-xl font-semibold">{nextEvent.title}</h3>
+                      <h3 className="font-semibold text-lg">{nextEvent.title}</h3>
                     </div>
-                    <p className="text-gray-600">
-                      {format(new Date(nextEvent.date), "MMMM d, yyyy")}
-                    </p>
-                    {nextEvent.description && (
-                      <p className="text-gray-600 mt-2 italic">"{nextEvent.description}"</p>
+                    <p className="text-gray-600">{format(new Date(nextEvent.date), "MMMM d, yyyy")}</p>
+                    {daysToNextEvent !== null && (
+                      <div className="mt-2 bg-red-50 text-red-800 py-1 px-3 rounded-full text-sm font-medium">
+                        {daysToNextEvent === 0 ? "Today!" : 
+                         daysToNextEvent === 1 ? "Tomorrow!" : 
+                         `${daysToNextEvent} days away`}
+                      </div>
                     )}
                   </div>
-
-                  <div className="text-center sm:text-right">
-                    <div className="text-3xl font-bold text-red-500">{daysToNextEvent}</div>
-                    <p className="text-gray-600">days to go</p>
-                    <Button variant="outline" asChild className="mt-4">
-                      <Link href="/events">View Calendar</Link>
-                    </Button>
-                  </div>
+                  <Button asChild>
+                    <Link href="/events">View All Events</Link>
+                  </Button>
                 </div>
               ) : (
-                <div className="text-center py-6">
-                  <p className="mb-4">No upcoming events. Add your first special date!</p>
-                  <Button variant="outline" asChild>
+                <div className="text-center py-4">
+                  <p className="mb-4">No upcoming events.</p>
+                  <Button asChild>
                     <Link href="/events">Add Event</Link>
                   </Button>
                 </div>
@@ -209,6 +259,12 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+        
+        {/* Invite Partner Dialog */}
+        <InvitePartnerDialog 
+          open={showInvitePartner} 
+          onOpenChange={setShowInvitePartner}
+        />
       </div>
     </PageLayout>
   );

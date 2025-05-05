@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="cadbury-purple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7B5AA6" />
+      <stop offset="50%" stop-color="#52307C" />
+      <stop offset="100%" stop-color="#3D1F61" />
+    </linearGradient>
+    <linearGradient id="chocolate-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B4513" />
+      <stop offset="50%" stop-color="#7B3F11" />
+      <stop offset="100%" stop-color="#6B3A0F" />
+    </linearGradient>
+    <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Cadbury wrapper background -->
+  <rect x="15" y="25" width="70" height="50" rx="5" fill="url(#cadbury-purple)" stroke="#3D1F61" stroke-width="1.5" />
+  
+  <!-- Gold wrapper at top -->
+  <path d="M15 30C15 27.2386 17.2386 25 20 25H80C82.7614 25 85 27.2386 85 30V35H15V30Z" fill="url(#gold-gradient)" stroke="#B8860B" stroke-width="1" />
+  
+  <!-- Cadbury logo text -->
+  <text x="50" y="43" font-family="Arial, sans-serif" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Cadbury</text>
+  <text x="50" y="52" font-family="Arial, sans-serif" font-size="8" font-style="italic" text-anchor="middle" fill="white">Dairy Milk</text>
+  
+  <!-- Chocolate bar (partially unwrapped) -->
+  <rect x="20" y="55" width="60" height="20" rx="2" fill="url(#chocolate-gradient)" stroke="#6B3A0F" stroke-width="1" />
+  
+  <!-- Chocolate segments -->
+  <line x1="30" y1="55" x2="30" y2="75" stroke="#5D3112" stroke-width="1" />
+  <line x1="40" y1="55" x2="40" y2="75" stroke="#5D3112" stroke-width="1" />
+  <line x1="50" y1="55" x2="50" y2="75" stroke="#5D3112" stroke-width="1" />
+  <line x1="60" y1="55" x2="60" y2="75" stroke="#5D3112" stroke-width="1" />
+  <line x1="70" y1="55" x2="70" y2="75" stroke="#5D3112" stroke-width="1" />
+  <line x1="20" y1="65" x2="80" y2="65" stroke="#5D3112" stroke-width="1" />
+  
+  <!-- Wrapper fold/shine -->
+  <path d="M15 40C15 40 25 45 50 45C75 45 85 40 85 40" stroke="#8A57DB" stroke-width="2" fill="none" />
+  
+  <!-- Shine effects -->
+  <ellipse cx="40" cy="35" rx="15" ry="5" fill="white" opacity="0.2" />
+  <ellipse cx="60" cy="62" rx="18" ry="6" fill="white" opacity="0.1" />
+  
+  <!-- Glass of milk -->
+  <path d="M82 80C82 83 78 85 73 85C68 85 64 83 64 80L67 65C67 62 70 60 73 60C76 60 79 62 79 65L82 80Z" fill="white" stroke="#CCCCCC" stroke-width="1" />
+  <path d="M76 65C76 66.6569 74.6569 68 73 68C71.3431 68 70 66.6569 70 65C70 63.3431 71.3431 62 73 62C74.6569 62 76 63.3431 76 65Z" fill="#EEEEEE" />
+  
+  <!-- Sparkles -->
+  <path d="M25 25L27 27M25 29L27 27M29 27L27 27M27 25L27 27M27 29L27 27" stroke="#FFD700" stroke-width="1" />
+  <path d="M75 30L77 32M75 34L77 32M79 32L77 32M77 30L77 32M77 34L77 32" stroke="#FFD700" stroke-width="1" />
+  <path d="M30 80L32 82M30 84L32 82M34 82L32 82M32 80L32 82M32 84L32 82" stroke="#FFD700" stroke-width="1" />
+  <path d="M70 75L72 77M70 79L72 77M74 77L72 77M72 75L72 77M72 79L72 77" stroke="#FFD700" stroke-width="1" />
+</svg> 

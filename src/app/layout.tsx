@@ -1,49 +1,57 @@
-import "@/app/globals.css";
 import "@fontsource/poppins/400.css";
 import "@fontsource/poppins/500.css";
 import "@fontsource/poppins/600.css";
 import "@fontsource/poppins/700.css";
-import "@fontsource/dancing-script/400.css";
-import "@fontsource/dancing-script/700.css";
+import "./globals.css";
 import { Toaster } from "sonner";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { VideoCallProvider } from "@/contexts/VideoCallContext";
+import FloatingVideoCall from "@/components/VideoCall/FloatingVideoCall";
+import CallNotification from "@/components/VideoCall/CallNotification";
+import EmojiReaction from "@/components/EmojiReaction";
 
-import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import ClientBody from "./ClientBody";
 
-const fontSans = FontSans({
+const inter = Inter({ subsets: ["latin"] });
+
+const fontSans = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
-export const metadata = {
-  title: "UsSpace – A Special Place for Love",
-  description: "Celebrate your journey, share moods, relive memories — no matter the distance.",
-  icons: {
-    icon: "/favicon.ico",
-  },
+export const metadata: Metadata = {
+  title: "Couples App",
+  description: "A beautiful app for couples to share memories and stay connected",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
+          inter.className
         )}
       >
-        <ClientBody>
-          <main>
-            {children}
-          </main>
-          <Toaster position="top-center" />
-        </ClientBody>
+        <VideoCallProvider>
+          <ClientBody>
+            <main>
+              {children}
+            </main>
+            <Toaster position="top-center" />
+          </ClientBody>
+          <FloatingVideoCall />
+          <CallNotification />
+          <EmojiReaction />
+        </VideoCallProvider>
       </body>
     </html>
   );

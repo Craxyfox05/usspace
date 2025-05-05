@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="200" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect x="0" y="0" width="300" height="200" rx="20" fill="#E6F2FF" />
+  <ellipse cx="150" cy="180" rx="120" ry="15" fill="#EFEFEF" opacity="0.5" />
+  
+  <!-- Male Avatar (Left) - Seated -->
+  <!-- Body/Shirt -->
+  <path d="M70 140c0-20 20-30 50-30s50 10 50 30v30H70v-30z" fill="#6B9BD1" />
+  
+  <!-- Legs -->
+  <rect x="70" y="160" width="100" height="20" rx="10" fill="#505F75" />
+  
+  <!-- Head -->
+  <circle cx="110" cy="90" r="40" fill="#FFDBAC" />
+  
+  <!-- Hair -->
+  <path d="M80 65c0-20 15-30 30-30s30 10 30 30c0 0 5 15-5 25 0 0-5-15-25-15s-25 15-25 15c-10-10-5-25-5-25z" fill="#4A2C17" />
+  
+  <!-- Bangs -->
+  <path d="M85 55c0 0 10-15 25-15s25 15 25 15c0 0-10-5-25-5s-25 5-25 5z" fill="#6E4C34" />
+  
+  <!-- Eyes -->
+  <ellipse cx="95" cy="85" rx="5" ry="7" fill="white" />
+  <ellipse cx="125" cy="85" rx="5" ry="7" fill="white" />
+  <circle cx="95" cy="87" r="3" fill="#3C6478" />
+  <circle cx="125" cy="87" r="3" fill="#3C6478" />
+  <circle cx="97" cy="85" r="1" fill="white" />
+  <circle cx="127" cy="85" r="1" fill="white" />
+  
+  <!-- Eyebrows -->
+  <path d="M90 75c2-3 8-3 10 0" stroke="#4A2C17" stroke-width="2" stroke-linecap="round" fill="none" />
+  <path d="M120 75c2-3 8-3 10 0" stroke="#4A2C17" stroke-width="2" stroke-linecap="round" fill="none" />
+  
+  <!-- Smile -->
+  <path d="M100 105c0 0 5 5 15 5" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round" fill="none" />
+  
+  <!-- Blush - subtle for male avatar -->
+  <ellipse cx="90" cy="95" rx="6" ry="3" fill="#FF9999" opacity="0.3" />
+  
+  <!-- Collar -->
+  <path d="M100 130c0 0 3-2 10-2s10 2 10 2" stroke="white" stroke-width="2" fill="none" />
+  
+  <!-- Male arm around female -->
+  <path d="M130 120c0 0 10 0 20 10s30 10 30 10" stroke="#6B9BD1" stroke-width="14" fill="none" stroke-linecap="round" />
+  <ellipse cx="205" cy="135" rx="7" ry="5" fill="#FFDBAC" /> <!-- Hand -->
+  
+  <!-- Female Avatar (Right) - Sitting on lap/cuddling -->
+  <!-- Head -->
+  <circle cx="190" cy="85" r="35" fill="#FFDBAC" />
+  
+  <!-- Hair -->
+  <path d="M155 65c0-20 15-35 35-35s35 15 35 35c0 0-5 40-35 40s-35-40-35-40z" fill="#8D5524" />
+  <path d="M155 65c-3 8-3 25 8 35" stroke="#8D5524" stroke-width="12" fill="none" />
+  
+  <!-- Bangs -->
+  <path d="M165 50c0 0 5-10 25-10s25 10 25 10c0 0-5-5-25-5s-25 5-25 5z" fill="#8D5524" />
+  
+  <!-- Eyes -->
+  <ellipse cx="175" cy="80" rx="5" ry="7" fill="white" />
+  <ellipse cx="205" cy="80" rx="5" ry="7" fill="white" />
+  <circle cx="175" cy="82" r="3" fill="#704241" />
+  <circle cx="205" cy="82" r="3" fill="#704241" />
+  <circle cx="177" cy="80" r="1" fill="white" />
+  <circle cx="207" cy="80" r="1" fill="white" />
+  
+  <!-- Blush -->
+  <ellipse cx="165" cy="90" rx="8" ry="4" fill="#FFB6C1" opacity="0.6" />
+  <ellipse cx="215" cy="90" rx="8" ry="4" fill="#FFB6C1" opacity="0.6" />
+  
+  <!-- Eyebrows -->
+  <path d="M170 70c0 0 3-3 8 0" stroke="#8D5524" stroke-width="2" stroke-linecap="round" fill="none" />
+  <path d="M200 70c0 0 3-3 8 0" stroke="#8D5524" stroke-width="2" stroke-linecap="round" fill="none" />
+  
+  <!-- Eyelashes -->
+  <line x1="170" y1="75" x2="168" y2="72" stroke="#333" stroke-width="1" />
+  <line x1="175" y1="74" x2="175" y2="71" stroke="#333" stroke-width="1" />
+  <line x1="180" y1="75" x2="182" y2="72" stroke="#333" stroke-width="1" />
+  <line x1="200" y1="75" x2="198" y2="72" stroke="#333" stroke-width="1" />
+  <line x1="205" y1="74" x2="205" y2="71" stroke="#333" stroke-width="1" />
+  <line x1="210" y1="75" x2="212" y2="72" stroke="#333" stroke-width="1" />
+  
+  <!-- Smile -->
+  <path d="M180 100c0 0 5 5 10 5s10-5 10-5" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round" fill="none" />
+  
+  <!-- Body/Dress -->
+  <path d="M160 120c0 0 10-15 30-15s30 15 30 15v30h-60v-30z" fill="#FF9EAA" />
+  
+  <!-- Female arm around male -->
+  <path d="M160 110c0 0-20 10-30 0" stroke="#FF9EAA" stroke-width="12" fill="none" stroke-linecap="round" />
+  <ellipse cx="115" cy="110" rx="6" ry="4" fill="#FFDBAC" transform="rotate(-10)" /> <!-- Hand -->
+  
+  <!-- Accessories -->
+  <circle cx="175" cy="60" r="4" fill="#FF9EAA" /> <!-- hair accessory -->
+  
+  <!-- Cozy blanket detail -->
+  <path d="M140 145c0 0 10 10 30 10s30-10 30-10v20h-60v-20z" fill="#E6C3C9" />
+  <path d="M140 145c0 0 15 5 30 5s30-5 30-5" stroke="#D1A7AD" stroke-width="2" stroke-dasharray="4 2" />
+  
+  <!-- Hearts above -->
+  <path d="M140 40c-3-3-7-3-10 0-3 3-3 7 0 10l10 10 10-10c3-3 3-7 0-10-3-3-7-3-10 0z" fill="#FF6B6B" opacity="0.7" />
+  <path d="M170 30c-2-2-5-2-7 0-2 2-2 5 0 7l7 7 7-7c2-2 2-5 0-7-2-2-5-2-7 0z" fill="#FF6B6B" opacity="0.5" />
+  
+  <!-- Cozy atmosphere -->
+  <path d="M90 50l2-5 2 5 5 2-5 2-2 5-2-5-5-2z" fill="#FFD700" opacity="0.4" /> <!-- Star -->
+  <path d="M220 40l1-3 1 3 3 1-3 1-1 3-1-3-3-1z" fill="#FFD700" opacity="0.4" /> <!-- Star -->
+  <path d="M50 100a5 5 0 000 10 5 5 0 000-10z" fill="#E6F2FF" opacity="0.7" /> <!-- Bubble -->
+  <path d="M245 110a3 3 0 000 6 3 3 0 000-6z" fill="#E6F2FF" opacity="0.7" /> <!-- Bubble -->
+  <path d="M260 80a4 4 0 000 8 4 4 0 000-8z" fill="#E6F2FF" opacity="0.7" /> <!-- Bubble -->
+</svg> 

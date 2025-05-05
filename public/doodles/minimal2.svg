@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="paperclip-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F0F0F0" />
+      <stop offset="100%" stop-color="#E0E0E0" />
+    </linearGradient>
+  </defs>
+  <path d="M65 20C58.3726 20 53 25.3726 53 32V68C53 74.6274 58.3726 80 65 80C71.6274 80 77 74.6274 77 68V32C77 25.3726 71.6274 20 65 20Z" stroke="#CCCCCC" stroke-width="4" stroke-linecap="round"/>
+  <path d="M35 80C41.6274 80 47 74.6274 47 68V32C47 25.3726 41.6274 20 35 20C28.3726 20 23 25.3726 23 32V68C23 74.6274 28.3726 80 35 80Z" stroke="#CCCCCC" stroke-width="4" stroke-linecap="round"/>
+  <path d="M35 80C28.3726 80 23 74.6274 23 68L23 32C23 25.3726 28.3726 20 35 20C41.6274 20 47 25.3726 47 32L47 68C47 74.6274 41.6274 80 35 80Z" fill="url(#paperclip-gradient)"/>
+  <path d="M65 20C71.6274 20 77 25.3726 77 32L77 68C77 74.6274 71.6274 80 65 80C58.3726 80 53 74.6274 53 68L53 32C53 25.3726 58.3726 20 65 20Z" fill="url(#paperclip-gradient)"/>
+  
+  <!-- Add a subtle blue tint to one clip -->
+  <path d="M65 20C71.6274 20 77 25.3726 77 32L77 68C77 74.6274 71.6274 80 65 80C58.3726 80 53 74.6274 53 68L53 32C53 25.3726 58.3726 20 65 20Z" fill="#E6F0FF" opacity="0.4"/>
+  
+  <!-- Add a subtle reflection -->
+  <path d="M65 22C70.5 22 75 26.5 75 32V40" stroke="#FFFFFF" stroke-width="1" opacity="0.7"/>
+  <path d="M35 22C29.5 22 25 26.5 25 32V40" stroke="#FFFFFF" stroke-width="1" opacity="0.7"/>
+</svg> 

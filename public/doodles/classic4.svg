@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="gift-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFB6C1" />
+      <stop offset="50%" stop-color="#FF69B4" />
+      <stop offset="100%" stop-color="#FF1493" />
+    </linearGradient>
+    <linearGradient id="ribbon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#FFA500" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Gift box -->
+  <rect x="20" y="35" width="60" height="45" rx="4" fill="url(#gift-gradient)" stroke="#FF1493" stroke-width="1.5"/>
+  
+  <!-- Gift lid -->
+  <rect x="15" y="25" width="70" height="15" rx="4" fill="#FF69B4" stroke="#FF1493" stroke-width="1.5"/>
+  
+  <!-- Vertical ribbon -->
+  <rect x="45" y="15" width="10" height="75" fill="url(#ribbon-gradient)" stroke="#FFA500" stroke-width="0.5"/>
+  
+  <!-- Horizontal ribbon -->
+  <rect x="15" y="45" width="70" height="10" fill="url(#ribbon-gradient)" stroke="#FFA500" stroke-width="0.5"/>
+  
+  <!-- Bow left -->
+  <path d="M30 20C20 15 25 5 35 10C45 15 40 25 30 20Z" fill="#FFD700" stroke="#FFA500" stroke-width="1"/>
+  
+  <!-- Bow right -->
+  <path d="M70 20C80 15 75 5 65 10C55 15 60 25 70 20Z" fill="#FFD700" stroke="#FFA500" stroke-width="1"/>
+  
+  <!-- Bow knot -->
+  <circle cx="50" cy="20" r="5" fill="#FFD700" stroke="#FFA500" stroke-width="1"/>
+  
+  <!-- Shine effects -->
+  <ellipse cx="30" cy="55" rx="10" ry="5" fill="white" opacity="0.2"/>
+  <ellipse cx="60" cy="70" rx="8" ry="4" fill="white" opacity="0.15"/>
+  
+  <!-- Sparkles -->
+  <circle cx="25" cy="25" r="1.5" fill="white"/>
+  <circle cx="75" cy="25" r="1.5" fill="white"/>
+  <circle cx="35" cy="80" r="1.5" fill="white"/>
+  <circle cx="65" cy="80" r="1.5" fill="white"/>
+</svg> 

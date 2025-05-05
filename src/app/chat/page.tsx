@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
+import RelationshipDashboard from "@/components/chat/RelationshipDashboard";
 
 const doodles = [
   {
@@ -28,6 +29,19 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([
     { sender: "partner", text: "Hey love! 💕", time: "09:00" },
     { sender: "me", text: "Good morning! ☀️", time: "09:01" },
+    { sender: "partner", text: "How did you sleep?", time: "09:02" },
+    { sender: "me", text: "Pretty well, thanks! What about you?", time: "09:03" },
+    { sender: "partner", text: "Not great, I was up late finishing that project 😴", time: "09:04" },
+    { sender: "me", text: "Oh no! You should try to get some rest today", time: "09:05" },
+    { sender: "me", text: "I'm making coffee now. Wish you were here!", time: "09:06" },
+    { sender: "partner", text: "That sounds amazing right now ☕ Miss you too", time: "09:07" },
+    { sender: "partner", text: "Don't forget we have dinner with my parents on Friday", time: "09:10" },
+    { sender: "me", text: "I remember! I'm looking forward to it 😊", time: "09:11" },
+    { sender: "partner", text: "Great! What are your plans for today?", time: "09:15" },
+    { sender: "me", text: "Just the usual work stuff, then maybe a run in the evening. You?", time: "09:17" },
+    { sender: "partner", text: "I have that big meeting at 2, kind of nervous about it", time: "09:20" },
+    { sender: "me", text: "You'll do amazing! You've prepared so well for this ❤️", time: "09:21" },
+    { sender: "partner", text: "Thanks for always being so supportive 🥰", time: "09:22" },
   ]);
   const [input, setInput] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
@@ -140,77 +154,102 @@ export default function ChatPage() {
           </span>
         ))}
       </div>
-      <div className="max-w-lg w-full bg-white/90 rounded-2xl shadow-lg p-4 flex flex-col relative z-10">
-        <h1 className="text-2xl font-bold mb-2 text-center">Private Chat</h1>
-        <div className="flex-1 overflow-y-auto mb-4 h-96 bg-white rounded-lg border border-gray-100 p-3 flex flex-col gap-2">
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"}`}
-            >
+      <div className="max-w-6xl w-full flex flex-col md:flex-row gap-4">
+        <div className="w-full md:w-2/3 bg-white/90 rounded-2xl shadow-lg p-4 flex flex-col relative z-10">
+          <h1 className="text-2xl font-bold mb-2 text-center">Private Chat</h1>
+          <div className="flex-1 overflow-y-auto mb-4 h-96 bg-white rounded-lg border border-gray-100 p-3 flex flex-col gap-2">
+            {messages.map((msg, i) => (
               <div
-                className={`max-w-xs px-4 py-2 rounded-2xl shadow text-base whitespace-pre-line ${msg.sender === "me" ? "bg-pink-100 text-right" : "bg-gray-100 text-left"}`}
-                dangerouslySetInnerHTML={{ __html: msg.text }}
-              />
-              <span className="text-xs text-gray-400 ml-2 self-end">{msg.time}</span>
-            </div>
-          ))}
-        </div>
-        {/* Message Input */}
-        <div className="flex gap-2 items-center mb-2">
-          <button onClick={() => setShowEmoji((v) => !v)} className="text-2xl">😊</button>
-          <input
-            type="text"
-            className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-200"
-            placeholder="Type a message..."
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter" && input.trim()) sendMessage(input); }}
-          />
-          <button onClick={() => setShowGif(true)} className="text-2xl">🎬</button>
-          <button onClick={startRecording} disabled={recording} className="text-2xl">🎤</button>
-          <button onClick={() => input.trim() && sendMessage(input)} className="bg-pink-500 hover:bg-pink-600 text-white rounded-full px-4 py-2 font-bold">Send</button>
-        </div>
-        {/* Emoji Picker */}
-        {showEmoji && (
-          <div className="absolute bottom-20 left-4 bg-white border rounded-lg shadow-lg p-2 flex flex-wrap gap-2 z-20">
-            {emojis.map((e) => (
-              <button key={e} className="text-2xl" onClick={() => handleEmoji(e)}>{e}</button>
+                key={i}
+                className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-xs px-4 py-2 rounded-2xl shadow text-base whitespace-pre-line ${msg.sender === "me" ? "bg-pink-100 text-right" : "bg-gray-100 text-left"}`}
+                  dangerouslySetInnerHTML={{ __html: msg.text }}
+                />
+                <span className="text-xs text-gray-400 ml-2 self-end">{msg.time}</span>
+              </div>
             ))}
           </div>
-        )}
-        {/* GIF Picker (demo) */}
-        {showGif && (
-          <div className="absolute bottom-20 right-4 bg-white border rounded-lg shadow-lg p-4 z-20 flex flex-col items-center">
-            <button onClick={handleGif} className="mb-2 bg-pink-100 px-4 py-2 rounded-lg">Send Cute GIF</button>
-            {gifUrl && <img src={gifUrl} alt="gif" className="w-32 rounded-lg" />}
+          {/* Message Input */}
+          <div className="flex gap-2 items-center mb-2">
+            <button onClick={() => setShowEmoji((v) => !v)} className="text-2xl">😊</button>
+            <input
+              type="text"
+              className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-200"
+              placeholder="Type a message..."
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter" && input.trim()) sendMessage(input); }}
+            />
+            <button onClick={() => setShowGif(true)} className="text-2xl">🎬</button>
+            <button onClick={startRecording} disabled={recording} className="text-2xl">🎤</button>
+            <button onClick={() => input.trim() && sendMessage(input)} className="bg-pink-500 hover:bg-pink-600 text-white rounded-full px-4 py-2 font-bold">Send</button>
           </div>
-        )}
-        {/* Voice Note Controls */}
-        {recording && (
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-white border rounded-lg shadow-lg p-4 z-20 flex flex-col items-center">
-            <span className="mb-2">Recording... 🎤</span>
-            <button onClick={stopRecording} className="bg-pink-500 text-white px-4 py-2 rounded-lg">Stop</button>
+          {/* Emoji Picker */}
+          {showEmoji && (
+            <div className="absolute bottom-20 left-4 bg-white border rounded-lg shadow-lg p-2 flex flex-wrap gap-2 z-20">
+              {emojis.map((e) => (
+                <button key={e} className="text-2xl" onClick={() => handleEmoji(e)}>{e}</button>
+              ))}
+            </div>
+          )}
+          {/* GIF Picker (demo) */}
+          {showGif && (
+            <div className="absolute bottom-20 right-4 bg-white border rounded-lg shadow-lg p-4 z-20 flex flex-col items-center">
+              <button onClick={handleGif} className="mb-2 bg-pink-100 px-4 py-2 rounded-lg">Send Cute GIF</button>
+              {gifUrl && <img src={gifUrl} alt="gif" className="w-32 rounded-lg" />}
+            </div>
+          )}
+          {/* Voice Note Controls */}
+          {recording && (
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-white border rounded-lg shadow-lg p-4 z-20 flex flex-col items-center">
+              <span className="mb-2">Recording... 🎤</span>
+              <button onClick={stopRecording} className="bg-pink-500 text-white px-4 py-2 rounded-lg">Stop</button>
+            </div>
+          )}
+          {/* Scheduled Message */}
+          <div className="mt-4 bg-pink-50 rounded-lg p-3 flex flex-col gap-2">
+            <div className="font-semibold">Schedule a Message</div>
+            <input
+              type="text"
+              className="border rounded px-2 py-1"
+              placeholder="Type your note..."
+              value={scheduledMsg}
+              onChange={e => setScheduledMsg(e.target.value)}
+            />
+            <input
+              type="datetime-local"
+              className="border rounded px-2 py-1"
+              value={scheduleTime}
+              onChange={e => setScheduleTime(e.target.value)}
+            />
+            <button onClick={handleSchedule} className="bg-pink-500 hover:bg-pink-600 text-white rounded px-3 py-1 mt-1">Schedule</button>
+            {showNotif && <div className="text-pink-600 text-sm mt-1">Your message will be sent at the scheduled time!</div>}
           </div>
-        )}
-        {/* Scheduled Message */}
-        <div className="mt-4 bg-pink-50 rounded-lg p-3 flex flex-col gap-2">
-          <div className="font-semibold">Schedule a Message</div>
-          <input
-            type="text"
-            className="border rounded px-2 py-1"
-            placeholder="Type your note..."
-            value={scheduledMsg}
-            onChange={e => setScheduledMsg(e.target.value)}
-          />
-          <input
-            type="datetime-local"
-            className="border rounded px-2 py-1"
-            value={scheduleTime}
-            onChange={e => setScheduleTime(e.target.value)}
-          />
-          <button onClick={handleSchedule} className="bg-pink-500 hover:bg-pink-600 text-white rounded px-3 py-1 mt-1">Schedule</button>
-          {showNotif && <div className="text-pink-600 text-sm mt-1">Your message will be sent at the scheduled time!</div>}
+        </div>
+        
+        {/* Relationship Dashboard Column */}
+        <div className="w-full md:w-1/3 z-10">
+          <RelationshipDashboard messages={messages} />
+          
+          {/* Sample conversation starters */}
+          <div className="bg-white/90 rounded-2xl shadow-lg p-4">
+            <h2 className="text-lg font-bold mb-3">Conversation Starters</h2>
+            <div className="space-y-2">
+              {["How was your day?", "I've been thinking about you ❤️", "Want to plan something fun this weekend?", "Just wanted to say I miss you!"].map((starter, index) => (
+                <div 
+                  key={index}
+                  className="bg-pink-50 rounded-lg p-2 text-sm cursor-pointer hover:bg-pink-100 transition"
+                  onClick={() => {
+                    setInput(starter);
+                  }}
+                >
+                  {starter}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
