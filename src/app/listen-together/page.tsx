@@ -6,22 +6,15 @@ import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { 
   Headphones, 
-  ListMusic, 
-  Music2, 
   Share2, 
-  UserPlus2, 
-  Heart, 
-  Plus,
   Users,
+  Music2,
   Radio,
-  Mic2,
-  Music,
-  PlayCircle
+  Disc
 } from "lucide-react";
 import PageLayout from "@/components/layout/PageLayout";
 import PageHeader from "@/components/layout/PageHeader";
 import MusicPlayer from "@/components/music/MusicPlayer";
-import PlaylistCard from "@/components/music/PlaylistCard";
 import ShareMusicDialog from "@/components/music/ShareMusicDialog";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
@@ -31,44 +24,6 @@ const SessionHandler = dynamic(() => import("@/components/music/SessionHandler")
   ssr: false,
   loading: () => null
 });
-
-// Sample playlist data
-const playlists = [
-  {
-    id: "1",
-    title: "Romantic Evening",
-    description: "Perfect for a cozy night in with your loved one",
-    coverImage: "/images/playlist1.jpg",
-    trackCount: 12,
-    isFeatured: true
-  },
-  {
-    id: "2",
-    title: "Chill Vibes",
-    description: "Relaxing tunes to unwind together",
-    coverImage: "/images/playlist2.jpg",
-    trackCount: 18
-  },
-  {
-    id: "3",
-    title: "Throwback Hits",
-    description: "Nostalgic songs from your favorite decades",
-    trackCount: 24
-  },
-  {
-    id: "4",
-    title: "Dance Party",
-    description: "Upbeat tracks to dance the night away",
-    coverImage: "/images/playlist4.jpg",
-    trackCount: 15
-  },
-  {
-    id: "5",
-    title: "Focus Together",
-    description: "Perfect background music for working side by side",
-    trackCount: 20
-  }
-];
 
 export default function ListenTogetherPage() {
   const router = useRouter();
@@ -106,7 +61,27 @@ export default function ListenTogetherPage() {
   
   return (
     <PageLayout>
-      <div className="relative min-h-screen bg-gradient-to-b from-amber-50/40 via-white to-amber-50/30">
+      <div className="relative min-h-screen bg-gradient-to-b from-amber-50/40 via-white to-amber-50/30 overflow-hidden">
+        {/* Floating SVG Elements */}
+        <div className="absolute top-40 left-5 animate-bounce-slow opacity-20 hidden md:block">
+          <div className="h-20 w-20 rounded-full bg-amber-200 flex items-center justify-center">
+            <Disc className="h-14 w-14 text-amber-600" />
+          </div>
+        </div>
+        
+        <div className="absolute bottom-40 right-10 animate-pulse opacity-20 hidden md:block">
+          <div className="h-28 w-24 rounded-2xl bg-amber-200 p-2 flex flex-col items-center justify-center">
+            <div className="w-full h-12 bg-amber-100 rounded-lg mb-2"></div>
+            <div className="w-16 h-16 rounded-full bg-amber-400 flex items-center justify-center">
+              <Music2 className="h-8 w-8 text-white" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="absolute top-1/3 right-20 animate-float opacity-20 hidden md:block">
+          <Radio className="h-16 w-16 text-amber-500" />
+        </div>
+        
         <PageHeader
           title="Listen Together"
           subtitle="Share music experiences with your loved one"
@@ -115,7 +90,7 @@ export default function ListenTogetherPage() {
         {/* Client-side only component */}
         <SessionHandler onSessionDetected={handleSessionDetected} />
         
-        <div className="container py-8 max-w-6xl">
+        <div className="container py-8 max-w-3xl mx-auto relative z-10">
           <div className="bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-200 rounded-xl p-6 mb-8 shadow-sm">
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 rounded-full bg-amber-500/20 flex items-center justify-center">
@@ -128,158 +103,73 @@ export default function ListenTogetherPage() {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left side - Music Player */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24">
-                <MusicPlayer isShared={isSharing} onShare={handleShareMusic} />
-                
-                {/* Share controls */}
-                <div className="mt-6 flex flex-col gap-4">
-                  <Button 
-                    onClick={handleShareMusic}
-                    className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white"
-                    disabled={isSharing}
-                  >
-                    <Share2 className="mr-2 h-5 w-5" /> 
-                    {isSharing ? "Currently Sharing" : "Share with Partner"}
-                  </Button>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button variant="outline" className="flex items-center justify-center border-amber-200 text-amber-700 hover:bg-amber-50">
-                      <Heart className="mr-2 h-4 w-4" /> Favorites
-                    </Button>
-                    <Button variant="outline" className="flex items-center justify-center border-amber-200 text-amber-700 hover:bg-amber-50">
-                      <ListMusic className="mr-2 h-4 w-4" /> History
-                    </Button>
+          <div className="flex flex-col gap-8">
+            {/* Music Player */}
+            <div className="mx-auto w-full max-w-md">
+              <MusicPlayer isShared={isSharing} onShare={handleShareMusic} />
+              
+              {/* Share controls */}
+              <div className="mt-6">
+                <Button 
+                  onClick={handleShareMusic}
+                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white py-5 rounded-xl text-lg"
+                  disabled={isSharing}
+                >
+                  <Share2 className="mr-2 h-5 w-5" /> 
+                  {isSharing ? "Currently Sharing" : "Share with Partner"}
+                </Button>
+              </div>
+              
+              {/* Connection status */}
+              {isSharing && (
+                <div className="mt-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <div className="flex items-start">
+                    <Users className="h-5 w-5 text-amber-700 mt-0.5 mr-2" />
+                    <div>
+                      <h3 className="font-medium text-amber-800">Active Session</h3>
+                      <p className="text-sm text-amber-700">
+                        You {partner ? `and ${partner.name}` : ""} are listening together.
+                      </p>
+                    </div>
                   </div>
                 </div>
-                
-                {/* Connection status */}
-                {isSharing && (
-                  <div className="mt-6 bg-amber-50 border border-amber-200 rounded-lg p-4">
-                    <div className="flex items-start">
-                      <Users className="h-5 w-5 text-amber-700 mt-0.5 mr-2" />
-                      <div>
-                        <h3 className="font-medium text-amber-800">Active Session</h3>
-                        <p className="text-sm text-amber-700">
-                          You {partner ? `and ${partner.name}` : ""} are listening together.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Music Pod SVG Icons Section */}
-                <div className="mt-8 bg-amber-50/60 border border-amber-100 rounded-lg p-4">
-                  <h3 className="font-medium text-amber-800 mb-3">Music & Podcast Tools</h3>
-                  <div className="grid grid-cols-4 gap-2">
-                    <div className="flex flex-col items-center">
-                      <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center mb-1">
-                        <Radio className="h-5 w-5 text-amber-700" />
-                      </div>
-                      <span className="text-xs text-amber-700">Radio</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center mb-1">
-                        <Mic2 className="h-5 w-5 text-amber-700" />
-                      </div>
-                      <span className="text-xs text-amber-700">Podcasts</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center mb-1">
-                        <Music className="h-5 w-5 text-amber-700" />
-                      </div>
-                      <span className="text-xs text-amber-700">Singles</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center mb-1">
-                        <PlayCircle className="h-5 w-5 text-amber-700" />
-                      </div>
-                      <span className="text-xs text-amber-700">Albums</span>
-                    </div>
-                  </div>
+              )}
+            </div>
+            
+            {/* Online Music Integration */}
+            <div className="bg-white rounded-xl border border-amber-100 p-6 shadow-sm">
+              <h2 className="text-lg font-medium text-amber-800 mb-4 flex items-center">
+                <Music2 className="h-5 w-5 mr-2 text-amber-600" /> 
+                Connect to Online Music
+              </h2>
+              
+              <div className="aspect-video w-full rounded-lg overflow-hidden bg-amber-50 flex items-center justify-center border border-amber-100">
+                <div className="text-center px-4">
+                  <Music2 className="h-10 w-10 text-amber-600 mx-auto mb-3 opacity-60" />
+                  <h3 className="text-amber-800 font-medium mb-2">Listen to Your Favorite Music</h3>
+                  <p className="text-amber-700 text-sm mb-4">Connect to Spotify, Apple Music, or YouTube Music to play your favorite tracks.</p>
+                  <Button className="bg-amber-600 hover:bg-amber-700 text-white">Connect Service</Button>
                 </div>
               </div>
             </div>
             
-            {/* Right side - Playlists */}
-            <div className="lg:col-span-2">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-amber-800">Playlists</h2>
-                <Button variant="outline" size="sm" className="border-amber-200 text-amber-700 hover:bg-amber-50">
-                  <Plus className="h-4 w-4 mr-2" /> New Playlist
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-10">
-                {playlists.map((playlist) => (
-                  <div 
-                    key={playlist.id} 
-                    className="group border border-amber-100 rounded-xl overflow-hidden hover:shadow-md transition-all bg-white"
-                  >
-                    <div className="relative aspect-video overflow-hidden">
-                      <img 
-                        src={playlist.coverImage || "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1470&auto=format&fit=crop"} 
-                        alt={playlist.title}
-                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-amber-900/40 to-transparent" />
-                      <div className="absolute bottom-3 left-3">
-                        <span className="text-xs font-medium px-2 py-1 bg-amber-800/80 text-white rounded-full">
-                          {playlist.trackCount} tracks
-                        </span>
-                      </div>
-                      {playlist.isFeatured && (
-                        <div className="absolute top-3 right-3">
-                          <span className="text-xs font-medium px-2 py-1 bg-amber-500/90 text-white rounded-full">
-                            Featured
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-amber-800 mb-1">{playlist.title}</h3>
-                      <p className="text-sm text-amber-700">{playlist.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-10">
-                <h2 className="text-2xl font-bold mb-6 text-amber-800">For You</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 flex items-center gap-4 hover:from-amber-500 hover:to-amber-600 transition-all shadow-sm">
-                    <div className="h-12 w-12 rounded-full bg-white/30 flex items-center justify-center">
-                      <Headphones className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-white">Daily Mix</h3>
-                      <p className="text-sm text-white/80">Based on your taste</p>
-                    </div>
-                  </div>
-                  
-                  <div className="p-6 rounded-xl bg-amber-100 flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-amber-500 flex items-center justify-center">
-                      <Heart className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-amber-800">Love Songs</h3>
-                      <p className="text-sm text-amber-700">Romantic favorites</p>
-                    </div>
-                  </div>
-                  
-                  <div className="p-6 rounded-xl bg-amber-50 flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-amber-400 flex items-center justify-center">
-                      <Music2 className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-amber-800">New Releases</h3>
-                      <p className="text-sm text-amber-700">Fresh music for you</p>
-                    </div>
-                  </div>
+            {/* Blend Feature */}
+            <div className="bg-gradient-to-r from-amber-400 to-amber-500 rounded-xl shadow-md p-6 text-white">
+              <div className="flex items-center mb-4">
+                <div className="h-12 w-12 rounded-full bg-white/30 flex items-center justify-center mr-4">
+                  <Headphones className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold">Create a Blend</h2>
+                  <p className="text-sm text-white/80">Mix your music tastes for a perfect shared playlist</p>
                 </div>
               </div>
+              
+              <Button 
+                className="w-full bg-white text-amber-600 hover:bg-amber-50"
+              >
+                Create Blend Playlist
+              </Button>
             </div>
           </div>
         </div>
@@ -290,6 +180,37 @@ export default function ListenTogetherPage() {
         onOpenChange={setShareDialogOpen}
         onConfirm={startSharedListening}
       />
+      
+      {/* Add custom animation keyframes for floating elements */}
+      <style jsx global>{`
+        @keyframes bounce-slow {
+          0%, 100% {
+            transform: translateY(-10%);
+            animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+          }
+          50% {
+            transform: translateY(0);
+            animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+          }
+        }
+        
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0) rotate(-5deg);
+          }
+          50% {
+            transform: translateY(-15px) rotate(5deg);
+          }
+        }
+        
+        .animate-bounce-slow {
+          animation: bounce-slow 5s infinite;
+        }
+        
+        .animate-float {
+          animation: float 8s ease-in-out infinite;
+        }
+      `}</style>
     </PageLayout>
   );
 } 
