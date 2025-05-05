@@ -252,10 +252,93 @@
 
 .memory-node {
   transform-origin: center bottom;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
 }
 
 .memory-node:hover {
-  transform: scale(1.1) rotate(3deg);
+  transform: scale(1.1) rotate(3deg) translateY(-5px);
   z-index: 30;
+}
+
+/* Memory node glowing effect */
+.memory-node::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 5px;
+  background: radial-gradient(circle, rgba(252,165,165,0.3) 0%, rgba(252,165,165,0) 70%);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.memory-node:hover::after {
+  opacity: 1;
+  animation: pulse 2s infinite;
+}
+
+/* Memory preview styles */
+.memory-preview {
+  position: absolute;
+  top: -130px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.8);
+  background: white;
+  width: 150px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  padding: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  z-index: 40;
+  border: 1px solid rgba(252,165,165,0.3);
+}
+
+.memory-node:hover .memory-preview {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) scale(1);
+}
+
+/* Floating decorative elements */
+.floating-icon {
+  position: absolute;
+  animation: float-around 3s ease-in-out infinite;
+  z-index: 2;
+}
+
+.floating-icon:nth-child(odd) {
+  animation-duration: 4s;
+  animation-delay: 0.5s;
+}
+
+.floating-icon:nth-child(even) {
+  animation-duration: 5s;
+  animation-delay: 1s;
+}
+
+@keyframes float-around {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(3px, -3px) rotate(5deg); }
+  50% { transform: translate(0, -5px) rotate(0deg); }
+  75% { transform: translate(-3px, -1px) rotate(-5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(252,165,165,0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(252,165,165,0); }
+  100% { box-shadow: 0 0 0 0 rgba(252,165,165,0); }
+}
+
+@keyframes sparkle {
+  0% { transform: scale(0.8) rotate(0deg); opacity: 0.3; }
+  50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+  100% { transform: scale(0.8) rotate(360deg); opacity: 0.3; }
 }

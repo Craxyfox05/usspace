@@ -613,6 +613,32 @@ export default function MemoriesPage() {
                               {/* Decorative tape at the top */}
                               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-10 h-5 bg-gradient-to-r from-amber-200 to-amber-300 opacity-70 rotate-3 z-10"></div>
                               
+                              {/* Floating decorative elements for special memories */}
+                              {isSpecial && (
+                                <>
+                                  {/* Heart icon */}
+                                  <div className="absolute -top-3 -right-3 floating-icon">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#fb7185" />
+                                    </svg>
+                                  </div>
+                                  
+                                  {/* Star icon */}
+                                  <div className="absolute -top-2 -left-3 floating-icon">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M12 2l3.09 6.26L22 9.27l-5.6 1.4L12 16l-1.4-5.6L5 9l5.6-1.4z" fill="#fdba74" />
+                                    </svg>
+                                  </div>
+                                  
+                                  {/* Sparkle icon */}
+                                  <div className="absolute -bottom-2 -right-1 floating-icon" style={{ animation: 'sparkle 2s infinite' }}>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M12 2l1.4 5.4L19 9l-5.6 1.4L12 16l-1.4-5.6L5 9l5.6-1.4z" fill="#f9a8d4" />
+                                    </svg>
+                                  </div>
+                                </>
+                              )}
+                              
                               {/* Polaroid frame effect */}
                               <div className="relative w-full h-full bg-white pt-1 pb-5 shadow-lg transform rotate-[-2deg]">
                                 {/* Image area */}
@@ -652,6 +678,29 @@ export default function MemoriesPage() {
                                     ? `${memory.caption.substring(0, 20)}...` 
                                     : memory.caption}
                                 </div>
+                              </div>
+                              
+                              {/* Hover preview popup */}
+                              <div className="memory-preview">
+                                <div className="relative w-full aspect-square mb-2 overflow-hidden rounded-md">
+                                  <Image
+                                    src={memory.mediaUrl}
+                                    alt={memory.caption}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <p className="text-xs font-medium text-gray-800 line-clamp-2 mb-1">{memory.caption}</p>
+                                <div className="flex items-center gap-1 text-[10px] text-gray-500">
+                                  <Calendar className="h-3 w-3" />
+                                  <span>{format(memoryDate, "MMMM d, yyyy")}</span>
+                                </div>
+                                {memory.location && (
+                                  <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-1">
+                                    <MapPin className="h-3 w-3" />
+                                    <span>{memory.location}</span>
+                                  </div>
+                                )}
                               </div>
                             </div>
                             
