@@ -32,7 +32,7 @@ export default function Header() {
                 <Button variant="ghost">Home</Button>
               </Link>
               <Link href="/couples">
-                <Button variant="ghost">Couples</Button>
+                <Button variant="ghost">LoveSpace</Button>
               </Link>
               <Link href="/memories">
                 <Button variant="ghost">Memories</Button>

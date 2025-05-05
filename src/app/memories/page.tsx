@@ -10,11 +10,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { format } from "date-fns";
 import { toast } from "sonner";
 import Image from "next/image";
-import Slider from "react-slick";
-import { ChevronLeft, ChevronRight, Heart, Calendar, MapPin, Tag, BookOpen, Image as ImageIcon, Camera } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Calendar, MapPin, Tag, BookOpen, Image as ImageIcon, Camera, Plus, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CallButton from "@/components/VideoCall/CallButton";
 import { useSyncActions, ActionType } from "@/hooks/useSyncActions";
+import { motion } from "framer-motion";
 
 // Extended Memory type to include story
 interface MemoryWithStory extends Omit<Memory, 'id'> {
@@ -94,49 +94,46 @@ const demoMemories: MemoryWithStory[] = [
     tags: ["Holiday", "Cooking"],
     story: "Our first Christmas dinner prepared together, with music playing and laughter filling the kitchen.",
   },
+  {
+    id: "mem8",
+    mediaUrl: "https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=500&q=60",
+    mediaType: "image" as const,
+    caption: "Concert night",
+    date: new Date("2024-03-10"),
+    location: "Downtown Venue",
+    tags: ["Music", "Date Night"],
+    story: "Dancing to our favorite songs, feeling the music connect us even deeper.",
+  },
+  {
+    id: "mem9",
+    mediaUrl: "https://images.unsplash.com/photo-1507152832244-10d45c7eda57?auto=format&fit=crop&w=500&q=60", 
+    mediaType: "image" as const,
+    caption: "First road trip",
+    date: new Date("2023-07-04"),
+    location: "Highway 1",
+    tags: ["Travel", "Adventure"],
+    story: "Windows down, favorite playlist on, and endless possibilities ahead of us.",
+  },
+  {
+    id: "mem10",
+    mediaUrl: "https://images.unsplash.com/photo-1617189070333-0fcadf1159e9?auto=format&fit=crop&w=500&q=60",
+    mediaType: "image" as const,
+    caption: "Holiday festival",
+    date: new Date("2024-01-01"),
+    location: "City Center",
+    tags: ["Festival", "Holiday"],
+    story: "A new year beginning with colors, lights, and hopes for even more beautiful days together.",
+  },
 ];
-
-// Custom prev/next arrow components for slider
-interface ArrowProps {
-  onClick?: () => void;
-  className?: string;
-}
-
-const PrevArrow = (props: ArrowProps) => {
-  const { onClick } = props;
-  return (
-    <button 
-      onClick={onClick} 
-      className="absolute left-4 top-1/2 z-10 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition-all duration-200"
-      aria-label="Previous slide"
-    >
-      <ChevronLeft className="h-5 w-5 text-gray-700" />
-    </button>
-  );
-};
-
-const NextArrow = (props: ArrowProps) => {
-  const { onClick } = props;
-  return (
-    <button 
-      onClick={onClick} 
-      className="absolute right-4 top-1/2 z-10 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition-all duration-200"
-      aria-label="Next slide"
-    >
-      <ChevronRight className="h-5 w-5 text-gray-700" />
-    </button>
-  );
-};
 
 export default function MemoriesPage() {
   const router = useRouter();
   const { isAuthenticated, memories, addMemory } = useStore();
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [displayMemories, setDisplayMemories] = useState<MemoryWithStory[]>(demoMemories);
+  const [displayMemories, setDisplayMemories] = useState<MemoryWithStory[]>([]);
   const [selectedMemory, setSelectedMemory] = useState<MemoryWithStory | null>(null);
-  const sliderRef = useRef<Slider | null>(null);
-  const gallerySliderRef = useRef<Slider | null>(null);
-  const timelineRef = useRef<HTMLDivElement>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [positions, setPositions] = useState<{[key: string]: {x: number, y: number, rotation: number}}>({}); 
+  const galleryRef = useRef<HTMLDivElement>(null);
   const { syncAction, partnerActions } = useSyncActions("partner-123");
 
   // Auth check
@@ -150,550 +147,293 @@ export default function MemoriesPage() {
   useEffect(() => {
     if (memories && memories.length > 0) {
       setDisplayMemories(memories);
+    } else {
+      setDisplayMemories(demoMemories);
     }
   }, [memories]);
 
-  // Scroll animations
+  // Initialize random positions and rotations for polaroid cards
   useEffect(() => {
-    const handleScroll = () => {
-      const elements = document.querySelectorAll('.animate-on-scroll');
-      elements.forEach(el => {
-        const rect = (el as HTMLElement).getBoundingClientRect();
-        const isVisible = (rect.top <= window.innerHeight * 0.8);
+    if (displayMemories.length > 0 && Object.keys(positions).length === 0) {
+      const initialPositions: {[key: string]: {x: number, y: number, rotation: number}} = {};
+      
+      displayMemories.forEach((memory) => {
+        const id = memory.id || '';
+        // Random rotation between -15 and 15 degrees
+        const rotation = Math.random() * 30 - 15;
+        // Initial position with slight random offset
+        const x = Math.random() * 50 - 25;
+        const y = Math.random() * 50 - 25;
         
-        if (isVisible) {
-          el.classList.add('animate-fade-in');
-        }
+        initialPositions[id] = { x, y, rotation };
       });
-    };
+      
+      setPositions(initialPositions);
+    }
+  }, [displayMemories]);
+
+  // Handle dragging events
+  const handleDragStart = (id: string) => {
+    setDraggingId(id);
+  };
+
+  const handleDragEnd = (id: string, info: { offset: { x: number, y: number } }) => {
+    setDraggingId(null);
+    setPositions(prev => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        x: prev[id].x + info.offset.x,
+        y: prev[id].y + info.offset.y
+      }
+    }));
+  };
+
+  const handleNewMemory = () => {
+    router.push('/memories/new');
+  };
+
+  const handleViewMemory = (memory: MemoryWithStory) => {
+    setSelectedMemory(memory);
     
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial check
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    // Send action to partner if they're online
+    syncAction(ActionType.VIEW_MEMORY, {
+      memoryId: memory.id,
+      timestamp: new Date().toISOString()
+    }).catch(err => console.error("Failed to sync memory view:", err));
+  };
+
+  const closeMemoryView = () => {
+    setSelectedMemory(null);
+  };
+
+  const handleFlipCard = (id: string) => {
+    setPositions(prev => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        rotation: prev[id].rotation + 180
+      }
+    }));
+  };
 
   if (!isAuthenticated) {
     return null;
   }
-
-  const handleFirstEntryRedirect = () => {
-    localStorage.setItem('newJournalEntry', JSON.stringify({
-      mediaUrl: "",
-      mediaType: "image",
-      caption: "",
-      date: format(new Date(), "yyyy-MM-dd"),
-      location: "",
-      tags: "",
-      story: "",
-    }));
-    router.push('/memories/new');
-  };
-
-  const filterMemories = (filter: string) => {
-    setActiveFilter(filter);
-
-    if (filter === "all") {
-      setDisplayMemories(memories.length > 0 ? memories : demoMemories);
-    } else {
-      const filtered = (memories.length > 0 ? memories : demoMemories).filter((memory) =>
-        memory.tags.some((tag) => tag.toLowerCase() === filter.toLowerCase())
-      );
-      setDisplayMemories(filtered);
-    }
-  };
-
-  // Get unique tags for filter
-  const allTags = [
-    ...new Set(
-      (memories.length > 0 ? memories : demoMemories)
-        .flatMap((memory) => memory.tags)
-    ),
-  ];
 
   // Sort memories by date (newest first)
   const sortedMemories = [...displayMemories].sort((a, b) => {
     return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
-  // Group memories by year and month for timeline view
-  const groupedMemories = sortedMemories.reduce((groups, memory) => {
-    const date = new Date(memory.date);
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    
-    if (!groups[year]) {
-      groups[year] = {};
-    }
-    
-    if (!groups[year][month]) {
-      groups[year][month] = [];
-    }
-    
-    groups[year][month].push(memory);
-    return groups;
-  }, {} as Record<number, Record<number, MemoryWithStory[]>>);
-
-  // Settings for the featured slider
-  const featuredSliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 800,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 5000,
-    pauseOnHover: true,
-    fade: true,
-    prevArrow: <PrevArrow />,
-    nextArrow: <NextArrow />,
-    customPaging: () => {
-      return (
-        <div className="w-3 h-3 rounded-full bg-gray-300 hover:bg-amber-400 mx-1 transition-colors duration-300"></div>
-      );
-    },
-    dotsClass: "slick-dots custom-dots"
-  };
-
-  // Settings for the gallery slider
-  const gallerySliderSettings = {
-    dots: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    prevArrow: <PrevArrow />,
-    nextArrow: <NextArrow />,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 2,
-        }
-      },
-      {
-        breakpoint: 640,
-        settings: {
-          slidesToShow: 1,
-        }
-      }
-    ]
-  };
-
-  const months = [
-    "January", "February", "March", "April", "May", "June", 
-    "July", "August", "September", "October", "November", "December"
-  ];
-
-  // Sync with partner when memory is selected
-  const handleViewMemory = (memory: MemoryWithStory) => {
-    setSelectedMemory(memory);
-    
-    // Notify partner you're viewing this memory
-    syncAction(ActionType.VIEW_MEMORY, {
-      memoryId: memory.id,
-      caption: memory.caption,
-      timestamp: new Date().toISOString()
-    }).catch(err => console.error("Failed to sync memory view:", err));
-  };
-  
-  // Show notification when partner views a memory
-  useEffect(() => {
-    const viewActions = partnerActions.filter(
-      action => action.action === ActionType.VIEW_MEMORY && !action.read
-    );
-    
-    if (viewActions.length > 0) {
-      const latestAction = viewActions[0];
-      
-      // Show a toast notification
-      toast(`Your partner is viewing "${latestAction.payload.caption}"`, {
-        icon: "❤️",
-        position: "bottom-right",
-      });
-      
-      // Mark action as read
-      // (In a real app, you'd call markAsRead here)
-    }
-  }, [partnerActions]);
-
   return (
     <PageLayout>
-      <div className="relative min-h-screen bg-gradient-to-b from-amber-50/40 via-white to-rose-50/30">
-        {/* Hero section with featured memories */}
-        <div className="relative w-full h-[70vh] overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-amber-900/20 to-amber-900/60 z-10"></div>
-          
-          {/* Fixed Video Call Button */}
-          <div className="absolute top-4 right-4 z-20">
-            <CallButton 
-              variant="icon"
-              partnerId="partner-123" 
-              partnerName="Your Partner" 
-            />
-          </div>
-          
-          <Slider {...featuredSliderSettings} ref={sliderRef} className="h-full">
-            {sortedMemories.slice(0, 5).map((memory) => (
-              <div key={memory.id} className="relative h-[70vh]">
-                <div className="absolute inset-0">
-                  {memory.mediaType === "image" ? (
-                    <img 
-                      src={memory.mediaUrl} 
-                      alt={memory.caption}
-                      className="w-full h-full object-cover transition-transform duration-5000 hover:scale-105"
-                    />
-                  ) : (
-                    <video 
-                      src={memory.mediaUrl} 
-                      muted 
-                      autoPlay 
-                      loop 
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
-                <div className="absolute inset-0 flex flex-col justify-end p-8 sm:p-16 z-20">
-                  <div className="animate-on-scroll opacity-0 transform translate-y-10 transition-all duration-1000">
-                    <span className="inline-block px-3 py-1 rounded-full bg-amber-100/90 text-amber-800 text-xs font-semibold mb-3">
-                      {format(new Date(memory.date), "MMMM d, yyyy")}
-                    </span>
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-3 text-shadow-lg">
-                      {memory.caption}
-                    </h1>
-                    <p className="max-w-2xl text-lg text-white/90 mb-6 line-clamp-2 text-shadow">
-                      {memory.story}
-                    </p>
-                    <Button 
-                      onClick={() => setSelectedMemory(memory)}
-                      className="bg-white/20 hover:bg-white/30 text-white border border-white/40 backdrop-blur-sm"
-                    >
-                      View Memory
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </Slider>
-        </div>
-
-        <div className="container max-w-7xl mx-auto px-4 py-20">
-          {/* Memory Navigation */}
-          <div className="flex flex-wrap justify-center gap-3 mb-16">
-            <Button
-              onClick={() => filterMemories("all")}
-              variant={activeFilter === "all" ? "default" : "outline"}
-              className={cn(
-                "rounded-full font-medium border-2 transition-all duration-300",
-                activeFilter === "all" 
-                  ? "bg-amber-100 hover:bg-amber-200 text-amber-800 border-amber-200" 
-                  : "bg-white hover:bg-amber-50 text-amber-700 border-amber-200"
-              )}
-            >
-              All Memories
-            </Button>
-            
-            {allTags.slice(0, 6).map((tag) => (
-              <Button
-                key={tag}
-                onClick={() => filterMemories(tag)}
-                variant={activeFilter === tag ? "default" : "outline"}
-                className={cn(
-                  "rounded-full font-medium border-2 transition-all duration-300",
-                  activeFilter === tag 
-                    ? "bg-amber-100 hover:bg-amber-200 text-amber-800 border-amber-200" 
-                    : "bg-white hover:bg-amber-50 text-amber-700 border-amber-200"
-                )}
-              >
-                {tag}
-              </Button>
-            ))}
-            
-            <Button
-              onClick={() => router.push('/journal')}
-              variant="outline"
-              className="rounded-full font-medium border-2 bg-rose-100 hover:bg-rose-200 text-rose-700 border-rose-200"
-            >
-              <BookOpen className="w-4 h-4 mr-2" />
-              Journal
-            </Button>
-          </div>
-
-          {/* Photo Gallery Section */}
-          <section className="mb-24 animate-on-scroll opacity-0 transform translate-y-10 transition-all duration-1000">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-amber-800">Photo Gallery</h2>
-              <Button 
-                onClick={handleFirstEntryRedirect} 
-                variant="outline"
-                className="border-amber-200 text-amber-700 hover:bg-amber-50"
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                Add Photos
-              </Button>
+      <div className="min-h-screen bg-gradient-to-b from-rose-50/50 to-white py-8">
+        <div className="container px-4 mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-rose-800">Our Memories</h1>
+              <p className="text-rose-600">Moments frozen in time</p>
             </div>
+            <Button 
+              onClick={handleNewMemory}
+              className="bg-rose-500 hover:bg-rose-600 text-white rounded-full flex items-center gap-2"
+            >
+              <Plus size={16} />
+              Add Memory
+            </Button>
+          </div>
+          
+          {/* Polaroid Gallery */}
+          <div 
+            ref={galleryRef}
+            className="relative w-full bg-[#f8f9fa] border border-gray-200 rounded-xl p-4 md:p-8 min-h-[70vh] overflow-hidden"
+          >
+            {/* Cork board background texture */}
+            <div className="absolute inset-0 bg-[url('/cork-board.png')] opacity-20"></div>
             
-            <div className="relative gallery-slider py-4">
-              <Slider {...gallerySliderSettings} ref={gallerySliderRef}>
-                {sortedMemories.filter(m => m.mediaType === "image").map((memory) => (
-                  <div key={memory.id} className="px-2">
-                    <div 
-                      className="relative aspect-square overflow-hidden rounded-xl cursor-pointer transform transition-all duration-500 hover:shadow-xl group border-4 border-white shadow-md"
-                      onClick={() => handleViewMemory(memory)}
-                    >
-                      <img 
-                        src={memory.mediaUrl} 
-                        alt={memory.caption}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                        <h3 className="text-white font-medium text-shadow mb-1 truncate">{memory.caption}</h3>
-                        <p className="text-white/80 text-xs text-shadow">
+            {/* Polaroid Cards */}
+            <div className="relative">
+              {sortedMemories.map((memory, index) => {
+                const id = memory.id || `memory-${index}`;
+                const pos = positions[id] || { x: 0, y: 0, rotation: 0 };
+                const isSpecial = memory.tags.some(tag => 
+                  ["Anniversary", "First Date", "Birthday", "Holiday"].includes(tag)
+                );
+                
+                return (
+                  <motion.div
+                    key={id}
+                    className={cn(
+                      "absolute bg-white rounded-md p-3 pb-8 shadow-md cursor-grab active:cursor-grabbing",
+                      draggingId === id ? "z-50" : "z-10"
+                    )}
+                    style={{
+                      width: '240px',
+                      originX: 0.5,
+                      originY: 0.5,
+                      left: `calc(${index % 4 * 25 + 5}% + ${pos.x}px)`,
+                      top: `calc(${Math.floor(index / 4) * 280 + 30}px + ${pos.y}px)`,
+                    }}
+                    initial={{
+                      rotate: pos.rotation,
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+                    }}
+                    animate={{
+                      rotate: pos.rotation,
+                      boxShadow: draggingId === id
+                        ? "0 10px 25px rgba(0, 0, 0, 0.2)"
+                        : "0 4px 6px rgba(0, 0, 0, 0.1)",
+                      scale: draggingId === id ? 1.05 : 1
+                    }}
+                    whileHover={{
+                      boxShadow: "0 8px 15px rgba(0, 0, 0, 0.15)",
+                      scale: 1.02,
+                      transition: { duration: 0.2 }
+                    }}
+                    drag
+                    dragMomentum={false}
+                    onDragStart={() => handleDragStart(id)}
+                    onDragEnd={(e, info) => handleDragEnd(id, info)}
+                    onDoubleClick={() => handleFlipCard(id)}
+                  >
+                    {/* Polaroid Image */}
+                    <div className="relative">
+                      <div className="relative w-full aspect-square overflow-hidden mb-2">
+                        <Image
+                          src={memory.mediaUrl}
+                          alt={memory.caption}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      
+                      {/* Special tag for important memories */}
+                      {isSpecial && (
+                        <div className="absolute top-2 right-2 bg-amber-400 rounded-full p-1 shadow-sm z-20">
+                          <Star className="h-3 w-3 text-white" />
+                        </div>
+                      )}
+                      
+                      {/* Polaroid caption */}
+                      <div onClick={() => handleViewMemory(memory)} className="cursor-pointer">
+                        <p className="text-center text-sm font-medium text-gray-800 truncate mb-1">
+                          {memory.caption}
+                        </p>
+                        
+                        {/* Date in handwritten style */}
+                        <p 
+                          className="text-center text-xs text-gray-600 font-handwriting"
+                          style={{ fontFamily: "'Caveat', cursive" }}
+                        >
                           {format(new Date(memory.date), "MMMM d, yyyy")}
                         </p>
                       </div>
+                      
+                      {/* Tape effect */}
+                      <div className="absolute top-[-8px] left-[50%] w-16 h-8 bg-[#ffffff98] transform -translate-x-1/2 opacity-40"></div>
                     </div>
-                  </div>
-                ))}
-              </Slider>
+                  </motion.div>
+                );
+              })}
             </div>
-          </section>
-
-          {/* Memories Timeline */}
-          <section className="mb-24" ref={timelineRef}>
-            <h2 className="text-3xl font-bold text-amber-800 mb-8">Memory Timeline</h2>
             
-            <div className="space-y-16">
-              {Object.keys(groupedMemories)
-                .sort((a, b) => Number(b) - Number(a))
-                .map(year => (
-                  <div key={year} className="animate-on-scroll opacity-0 transform translate-y-10 transition-all duration-1000">
-                    <h3 className="inline-block text-2xl font-bold mb-6 px-5 py-2 bg-amber-100 text-amber-800 rounded-full shadow-sm">
-                      {year}
-                    </h3>
-                    
-                    <div className="space-y-12">
-                      {Object.keys(groupedMemories[Number(year)])
-                        .sort((a, b) => Number(b) - Number(a))
-                        .map(month => (
-                          <div key={`${year}-${month}`} className="pl-6 border-l-2 border-amber-200">
-                            <h4 className="text-xl font-semibold text-amber-700 mb-6 -ml-10 flex items-center">
-                              <span className="inline-block w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center text-amber-800 mr-2 shadow-sm">
-                                <Calendar className="w-4 h-4" />
-                              </span>
-                              {months[Number(month)]}
-                            </h4>
-                            
-                            <div className="grid grid-cols-1 gap-8">
-                              {groupedMemories[Number(year)][Number(month)].map((memory, idx) => (
-                                <div 
-                                  key={memory.id}
-                                  className={`relative pl-8 animate-on-scroll opacity-0 transform translate-y-10 transition-all duration-1000 delay-${idx * 100}`}
-                                >
-                                  <span className="absolute left-0 top-2 w-3 h-3 rounded-full bg-amber-300 shadow-amber-300 shadow-md"></span>
-                                  
-                                  <Card className="overflow-hidden bg-white hover:shadow-lg transition-all duration-300 border-amber-100">
-                                    <div className="grid grid-cols-1 md:grid-cols-3">
-                                      <div 
-                                        className="relative aspect-square md:aspect-auto cursor-pointer"
-                                        onClick={() => handleViewMemory(memory)}
-                                      >
-                                        {memory.mediaType === "image" ? (
-                                          <img 
-                                            src={memory.mediaUrl} 
-                                            alt={memory.caption}
-                                            className="w-full h-full object-cover"
-                                          />
-                                        ) : (
-                                          <video 
-                                            src={memory.mediaUrl} 
-                                            className="w-full h-full object-cover"
-                                          />
-                                        )}
-                                      </div>
-                                      <div className="p-6 md:col-span-2">
-                                        <div className="flex flex-wrap gap-2 mb-3">
-                                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                                            <Calendar className="mr-1 h-3 w-3" />
-                                            {format(new Date(memory.date), "MMMM d, yyyy")}
-                                          </span>
-                                          {memory.location && (
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                              <MapPin className="mr-1 h-3 w-3" />
-                                              {memory.location}
-                                            </span>
-                                          )}
-                                        </div>
-                                        
-                                        <h3 className="text-xl font-bold text-amber-800 mb-3">{memory.caption}</h3>
-                                        
-                                        <p className="text-amber-700/80 mb-5 line-clamp-3">
-                                          {memory.story}
-                                        </p>
-                                        
-                                        <div className="flex flex-wrap items-center gap-3">
-                                          <div className="flex flex-wrap gap-1">
-                                            {memory.tags.map((tag) => (
-                                              <span 
-                                                key={tag} 
-                                                className="px-2 py-1 rounded-full bg-amber-50 text-amber-600 text-xs font-medium border border-amber-100"
-                                              >
-                                                {tag}
-                                              </span>
-                                            ))}
-                                          </div>
-                                          <Button
-                                            onClick={() => handleViewMemory(memory)}
-                                            variant="outline"
-                                            size="sm"
-                                            className="ml-auto mt-1 text-amber-600 border-amber-200"
-                                          >
-                                            View Details
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </Card>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                ))}
+            {/* Instructions */}
+            <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-2 rounded-lg text-xs text-gray-600 border border-rose-100 shadow-sm">
+              <div className="flex flex-col gap-1">
+                <span>• Drag to rearrange</span>
+                <span>• Double-click to flip</span>
+                <span>• Click caption to view details</span>
+              </div>
             </div>
-          </section>
+          </div>
           
-          {/* Add New Memory - Fixed Button */}
-          <div className="fixed bottom-8 right-8 z-10">
-            <Button 
-              onClick={handleFirstEntryRedirect}
-              className="rounded-full h-14 w-14 p-0 shadow-lg bg-amber-500 hover:bg-amber-600 flex items-center justify-center"
-            >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-6 w-6" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </Button>
+          <div className="mt-6 text-center text-sm text-gray-500">
+            <p>Your love story has {displayMemories.length} cherished memories and counting...</p>
           </div>
         </div>
-        
-        {/* Memory Detail Dialog */}
-        <Dialog open={!!selectedMemory} onOpenChange={(open) => !open && setSelectedMemory(null)}>
-          {selectedMemory && (
-            <DialogContent className="sm:max-w-4xl bg-gradient-to-br from-white to-amber-50 border border-amber-100">
-              <DialogHeader>
-                <DialogTitle className="text-amber-800 text-2xl">{selectedMemory.caption}</DialogTitle>
-                <DialogDescription className="text-amber-500 text-sm">
-                  {format(new Date(selectedMemory.date), "MMMM d, yyyy")}
-                  {selectedMemory.location && ` • ${selectedMemory.location}`}
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="rounded-lg overflow-hidden shadow-md">
-                  {selectedMemory.mediaType === "image" ? (
-                    <img
-                      src={selectedMemory.mediaUrl}
-                      alt={selectedMemory.caption}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <video src={selectedMemory.mediaUrl} controls className="w-full h-full" />
-                  )}
-                </div>
-                <div>
-                  <h3 className="font-medium text-lg mb-2 text-amber-700">Our Story</h3>
-                  <p className="text-amber-600 mb-4">
-                    {selectedMemory.story || "No story added for this memory."}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {selectedMemory.tags && selectedMemory.tags.map((tag) => (
-                      <span key={tag} className="bg-amber-50 text-amber-600 text-xs px-2 py-1 rounded-full border border-amber-100">
-                        <Tag className="inline h-3 w-3 mr-1" />
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="pt-4 border-t border-amber-100">
-                    <h4 className="font-medium text-sm text-amber-700 mb-2">Share this memory</h4>
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="border-amber-200 text-amber-600 hover:bg-amber-50"
-                      >
-                        Copy Link
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </DialogContent>
-          )}
-        </Dialog>
       </div>
       
-      {/* Add CSS for animations */}
+      {/* Memory View Dialog */}
+      <Dialog open={!!selectedMemory} onOpenChange={closeMemoryView}>
+        {selectedMemory && (
+          <DialogContent className="max-w-3xl overflow-hidden">
+            <DialogHeader>
+              <DialogTitle>{selectedMemory.caption}</DialogTitle>
+              <DialogDescription>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Calendar className="h-4 w-4" />
+                  <span>{format(new Date(selectedMemory.date), "MMMM d, yyyy")}</span>
+                  
+                  {selectedMemory.location && (
+                    <>
+                      <span>•</span>
+                      <MapPin className="h-4 w-4" />
+                      <span>{selectedMemory.location}</span>
+                    </>
+                  )}
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="relative aspect-video overflow-hidden rounded-lg">
+              {selectedMemory.mediaType === "image" ? (
+                <Image
+                  src={selectedMemory.mediaUrl}
+                  alt={selectedMemory.caption}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <video
+                  src={selectedMemory.mediaUrl}
+                  controls
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+            
+            {selectedMemory.story && (
+              <div className="mt-4">
+                <div className="flex items-center gap-2 mb-2 text-rose-700">
+                  <BookOpen className="h-4 w-4" />
+                  <h3 className="font-medium">Our Story</h3>
+                </div>
+                <p className="text-gray-700">{selectedMemory.story}</p>
+              </div>
+            )}
+            
+            {selectedMemory.tags && selectedMemory.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {selectedMemory.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="px-2 py-1 bg-rose-50 text-rose-600 text-xs rounded-full"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={closeMemoryView}
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        )}
+      </Dialog>
+
+      {/* Add font imports to head */}
       <style jsx global>{`
-        .animate-fade-in {
-          opacity: 1 !important;
-          transform: translateY(0) !important;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&display=swap');
         
-        .text-shadow {
-          text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .text-shadow-lg {
-          text-shadow: 0 3px 6px rgba(0,0,0,0.5);
-        }
-        
-        .gallery-slider .slick-track {
-          display: flex;
-          padding: 2rem 0;
-        }
-        
-        .gallery-slider .slick-slide {
-          opacity: 0.5;
-          transform: scale(0.9);
-          transition: all 0.5s ease;
-        }
-        
-        .gallery-slider .slick-slide.slick-active {
-          opacity: 1;
-          transform: scale(1);
-        }
-        
-        .gallery-slider .slick-slide.slick-center {
-          transform: scale(1.05);
-          z-index: 1;
-        }
-        
-        .slick-prev, .slick-next {
-          z-index: 10;
-        }
-        
-        .custom-dots {
-          bottom: 20px;
-          display: flex !important;
-          justify-content: center;
-          padding: 0;
-          margin: 0;
-        }
-        
-        .custom-dots li {
-          margin: 0 4px;
-        }
-        
-        .custom-dots li button:before {
-          display: none;
+        .font-handwriting {
+          font-family: 'Caveat', cursive;
         }
       `}</style>
     </PageLayout>

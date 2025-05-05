@@ -9,7 +9,6 @@ import { Inter } from "next/font/google";
 import { VideoCallProvider } from "@/contexts/VideoCallContext";
 import FloatingVideoCall from "@/components/VideoCall/FloatingVideoCall";
 import CallNotification from "@/components/VideoCall/CallNotification";
-import EmojiReaction from "@/components/EmojiReaction";
 
 import { cn } from "@/lib/utils";
 import ClientBody from "./ClientBody";
@@ -50,7 +49,6 @@ export default function RootLayout({
           </ClientBody>
           <FloatingVideoCall />
           <CallNotification />
-          <EmojiReaction />
         </VideoCallProvider>
       </body>
     </html>
