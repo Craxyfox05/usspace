@@ -327,12 +327,41 @@ export default function MemoriesPage() {
 
   return (
     <PageLayout>
-      <div className="min-h-screen bg-gradient-to-b from-rose-50/50 to-white py-8">
+      <div className="min-h-screen bg-paper-texture bg-repeat py-8 relative">
+        {/* Decorative Doodles */}
+        <div className="absolute top-5 left-5 opacity-50 rotate-[-10deg]">
+          <svg width="80" height="80" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 10C30 10 10 30 10 50C10 70 30 90 50 90C70 90 90 70 90 50C90 30 70 10 50 10Z" stroke="#fb7185" strokeWidth="2" strokeLinecap="round" strokeDasharray="5 5" />
+            <path d="M30 30L70 70M30 70L70 30" stroke="#fb7185" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
+        
+        <div className="absolute top-20 right-10 opacity-40 rotate-12">
+          <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 50C20 40 40 30 50 30C60 30 80 40 80 50C80 60 60 70 50 70C40 70 20 60 20 50Z" fill="#fda4af" fillOpacity="0.3" />
+            <path d="M50 30C40 30 20 40 20 50C20 60 40 70 50 70C60 70 80 60 80 50C80 40 60 30 50 30Z" stroke="#fda4af" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
+        
+        <div className="absolute bottom-20 left-10 opacity-40 rotate-[-5deg]">
+          <svg width="70" height="70" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 20L61 39.5L83 43.75L66.5 59.5L71 81.25L50 71L29 81.25L33.5 59.5L17 43.75L39 39.5L50 20Z" fill="#fdba74" fillOpacity="0.3" />
+            <path d="M50 20L61 39.5L83 43.75L66.5 59.5L71 81.25L50 71L29 81.25L33.5 59.5L17 43.75L39 39.5L50 20Z" stroke="#fdba74" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+        
+        <div className="absolute bottom-10 right-10 opacity-50 rotate-12">
+          <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 15C55 25 65 25 75 25C85 25 85 35 85 45C85 55 85 65 75 75C65 85 55 85 50 85C45 85 35 85 25 75C15 65 15 55 15 45C15 35 15 25 25 25C35 25 45 25 50 15Z" fill="#f9a8d4" fillOpacity="0.3" />
+            <path d="M50 15C55 25 65 25 75 25C85 25 85 35 85 45C85 55 85 65 75 75C65 85 55 85 50 85C45 85 35 85 25 75C15 65 15 55 15 45C15 35 15 25 25 25C35 25 45 25 50 15Z" stroke="#f9a8d4" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </div>
+        
         <div className="container px-4 mx-auto">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-rose-800">Memory Journey</h1>
-              <p className="text-rose-600">Follow the path of your love story</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-rose-800 font-handwriting">Memory Journal</h1>
+              <p className="text-rose-600">Our love story, captured in moments</p>
             </div>
             <Button 
               onClick={handleNewMemory}
@@ -345,13 +374,82 @@ export default function MemoriesPage() {
           
           {/* Timeline Container */}
           <div 
-            className="w-full overflow-hidden border border-rose-100 rounded-xl bg-white shadow-md"
+            className="w-full overflow-hidden border-2 border-dashed border-rose-200 rounded-xl bg-white shadow-md relative scrapbook-box"
             style={{ 
               height: 'calc(100vh - 200px)',
               minHeight: '500px',
-              position: 'relative'
+              position: 'relative',
+              backgroundImage: "url('/images/paper-texture.png')",
+              backgroundSize: "cover",
+              backgroundRepeat: "repeat"
             }}
           >
+            {/* Decorative washi tape */}
+            <div className="absolute -top-2 left-12 w-32 h-8 bg-gradient-to-r from-amber-200 to-amber-300 opacity-60 rotate-6 z-10"></div>
+            <div className="absolute -top-2 right-24 w-24 h-8 bg-gradient-to-r from-rose-300 to-rose-200 opacity-60 rotate-[-3deg] z-10"></div>
+            
+            {/* Decorative stickers */}
+            <div className="absolute top-5 right-5 opacity-60 z-10">
+              <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 10L61 39H93L67 58L77 88L50 68L23 88L33 58L7 39H39L50 10Z" fill="#fdba74" fillOpacity="0.5" stroke="#fdba74" strokeWidth="2" />
+              </svg>
+            </div>
+            
+            <div className="absolute bottom-10 left-5 opacity-50 z-10 rotate-[-10deg]">
+              <svg width="45" height="45" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 10C30 10 10 30 10 50C10 70 30 90 50 90C70 90 90 70 90 50C90 30 70 10 50 10Z" fill="#f9a8d4" fillOpacity="0.3" stroke="#f9a8d4" strokeWidth="2" />
+                <path d="M35 40C40 35 60 35 65 40" stroke="#f9a8d4" strokeWidth="2" strokeLinecap="round" />
+                <circle cx="35" cy="30" r="3" fill="#f9a8d4" />
+                <circle cx="65" cy="30" r="3" fill="#f9a8d4" />
+              </svg>
+            </div>
+            
+            {/* Corner doodles for scrapbook feel */}
+            <div className="absolute top-0 left-0 w-20 h-20 opacity-60">
+              <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 10C20 20 30 10 40 20C50 30 60 20 70 30C80 40 90 30 90 40" stroke="#fda4af" strokeWidth="2" strokeLinecap="round" />
+                <path d="M5 40C10 30 20 40 30 30" stroke="#fda4af" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </div>
+            
+            <div className="absolute top-0 right-0 w-20 h-20 opacity-60 rotate-90">
+              <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 10C20 20 30 10 40 20C50 30 60 20 70 30C80 40 90 30 90 40" stroke="#fdba74" strokeWidth="2" strokeLinecap="round" />
+                <path d="M5 40C10 30 20 40 30 30" stroke="#fdba74" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </div>
+            
+            <div className="absolute bottom-0 left-0 w-20 h-20 opacity-60 rotate-270">
+              <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 10C20 20 30 10 40 20C50 30 60 20 70 30C80 40 90 30 90 40" stroke="#f9a8d4" strokeWidth="2" strokeLinecap="round" />
+                <path d="M5 40C10 30 20 40 30 30" stroke="#f9a8d4" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </div>
+            
+            <div className="absolute bottom-0 right-0 w-20 h-20 opacity-60 rotate-180">
+              <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 10C20 20 30 10 40 20C50 30 60 20 70 30C80 40 90 30 90 40" stroke="#fcd34d" strokeWidth="2" strokeLinecap="round" />
+                <path d="M5 40C10 30 20 40 30 30" stroke="#fcd34d" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </div>
+            
+            {/* Music notes decorations */}
+            <div className="absolute top-1/4 right-10 opacity-40">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 18V5l12-2v13" stroke="#fb7185" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="6" cy="18" r="3" stroke="#fb7185" strokeWidth="1.5"/>
+                <circle cx="18" cy="16" r="3" stroke="#fb7185" strokeWidth="1.5"/>
+              </svg>
+            </div>
+            
+            <div className="absolute bottom-1/4 left-10 opacity-40">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 18l4-4 2 2 4-4" stroke="#fdba74" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <rect x="3" y="6" width="18" height="12" rx="2" stroke="#fdba74" strokeWidth="1.5"/>
+                <circle cx="9" cy="10" r="1.5" fill="#fdba74"/>
+              </svg>
+            </div>
+            
             {/* Timeline Board */}
             <div
               ref={timelineRef}
@@ -509,40 +607,51 @@ export default function MemoriesPage() {
                           >
                             {/* Memory Node */}
                             <div 
-                              className="w-[60px] h-[60px] rounded-full overflow-hidden border-3 shadow-lg cursor-pointer transition-transform hover:scale-110"
-                              style={{
-                                borderColor: isSpecial ? '#fb7185' : '#fda4af' 
-                              }}
+                              className="w-[70px] h-[90px] overflow-visible cursor-pointer transition-transform hover:scale-110 memory-node relative"
                               onClick={() => handleViewMemory(memory)}
                             >
-                              <div className="relative w-full h-full">
-                                <Image
-                                  src={memory.mediaUrl}
-                                  alt={memory.caption}
-                                  fill
-                                  className="object-cover"
-                                />
+                              {/* Decorative tape at the top */}
+                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-10 h-5 bg-gradient-to-r from-amber-200 to-amber-300 opacity-70 rotate-3 z-10"></div>
+                              
+                              {/* Polaroid frame effect */}
+                              <div className="relative w-full h-full bg-white pt-1 pb-5 shadow-lg transform rotate-[-2deg]">
+                                {/* Image area */}
+                                <div className="relative w-full h-[55px] overflow-hidden border-2 border-gray-100 mx-auto">
+                                  <Image
+                                    src={memory.mediaUrl}
+                                    alt={memory.caption}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                  
+                                  {/* Overlay with radial gradient */}
+                                  <div className="absolute inset-0 bg-gradient-to-tr from-rose-500/20 to-transparent opacity-50"></div>
+                                  
+                                  {/* Milestone indicator */}
+                                  {isSpecial && (
+                                    <motion.div 
+                                      className="absolute -top-1 -right-1 bg-amber-400 rounded-full p-1 shadow-sm"
+                                      animate={{ 
+                                        scale: [1, 1.2, 1], 
+                                        rotate: [0, 5, 0, -5, 0] 
+                                      }}
+                                      transition={{ 
+                                        duration: 3, 
+                                        repeat: Infinity, 
+                                        repeatType: "reverse" 
+                                      }}
+                                    >
+                                      <Star className="h-3 w-3 text-white" />
+                                    </motion.div>
+                                  )}
+                                </div>
                                 
-                                {/* Overlay with radial gradient */}
-                                <div className="absolute inset-0 bg-gradient-to-tr from-rose-500/30 to-transparent opacity-50"></div>
-                                
-                                {/* Milestone indicator */}
-                                {isSpecial && (
-                                  <motion.div 
-                                    className="absolute -top-1 -right-1 bg-amber-400 rounded-full p-1 shadow-sm"
-                                    animate={{ 
-                                      scale: [1, 1.2, 1], 
-                                      rotate: [0, 5, 0, -5, 0] 
-                                    }}
-                                    transition={{ 
-                                      duration: 3, 
-                                      repeat: Infinity, 
-                                      repeatType: "reverse" 
-                                    }}
-                                  >
-                                    <Star className="h-3 w-3 text-white" />
-                                  </motion.div>
-                                )}
+                                {/* Small caption underneath */}
+                                <div className="text-[8px] text-center mt-1 font-handwriting text-gray-600 px-1 truncate">
+                                  {memory.caption.length > 20 
+                                    ? `${memory.caption.substring(0, 20)}...` 
+                                    : memory.caption}
+                                </div>
                               </div>
                             </div>
                             
@@ -552,7 +661,6 @@ export default function MemoriesPage() {
                               initial={{ y: 10, opacity: 0 }}
                               animate={{ y: 0, opacity: 1 }}
                               transition={{ delay: memoryIndex * 0.1 + 0.3 }}
-                              style={{ fontFamily: "'Caveat', cursive" }}
                             >
                               {format(memoryDate, "MMM d")}
                             </motion.div>
@@ -583,9 +691,20 @@ export default function MemoriesPage() {
       {/* Memory View Dialog */}
       <Dialog open={!!selectedMemory} onOpenChange={closeMemoryView}>
         {selectedMemory && (
-          <DialogContent className="max-w-3xl overflow-hidden">
+          <DialogContent className="max-w-3xl overflow-hidden relative bg-paper-texture border-2 border-dashed border-rose-200">
+            {/* Decorative tape */}
+            <div className="absolute -top-2 left-1/4 w-24 h-8 bg-gradient-to-r from-amber-200 to-amber-300 opacity-60 rotate-6 z-10"></div>
+            <div className="absolute -top-2 right-1/4 w-24 h-8 bg-gradient-to-r from-rose-300 to-rose-200 opacity-60 rotate-[-3deg] z-10"></div>
+            
+            {/* Corner doodle */}
+            <div className="absolute top-0 right-0 w-16 h-16 opacity-40">
+              <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 10C20 20 30 10 40 20C50 30 60 20 70 30C80 40 90 30 90 40" stroke="#fda4af" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </div>
+            
             <DialogHeader>
-              <DialogTitle>{selectedMemory.caption}</DialogTitle>
+              <DialogTitle className="font-handwriting text-2xl text-rose-800">{selectedMemory.caption}</DialogTitle>
               <DialogDescription>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <Calendar className="h-4 w-4" />
@@ -602,13 +721,14 @@ export default function MemoriesPage() {
               </DialogDescription>
             </DialogHeader>
             
-            <div className="relative aspect-video overflow-hidden rounded-lg">
+            <div className="relative overflow-hidden rounded-lg transform rotate-[-1deg] border-4 border-white shadow-lg">
               {selectedMemory.mediaType === "image" ? (
                 <Image
                   src={selectedMemory.mediaUrl}
                   alt={selectedMemory.caption}
-                  fill
-                  className="object-cover"
+                  width={800}
+                  height={500}
+                  className="object-cover w-full"
                 />
               ) : (
                 <video
@@ -620,12 +740,15 @@ export default function MemoriesPage() {
             </div>
             
             {selectedMemory.story && (
-              <div className="mt-4">
+              <div className="mt-4 bg-white p-4 rounded-md shadow-sm relative">
+                {/* Story paper effect */}
+                <div className="absolute top-0 left-0 w-full h-full bg-[linear-gradient(transparent_24px,#fda4af10_24px,#fda4af10_25px,transparent_25px)] bg-[size:100%_25px] pointer-events-none"></div>
+                
                 <div className="flex items-center gap-2 mb-2 text-rose-700">
                   <BookOpen className="h-4 w-4" />
-                  <h3 className="font-medium">Our Story</h3>
+                  <h3 className="font-medium font-handwriting">Our Story</h3>
                 </div>
-                <p className="text-gray-700">{selectedMemory.story}</p>
+                <p className="text-gray-700 relative z-10">{selectedMemory.story}</p>
               </div>
             )}
             
@@ -634,7 +757,7 @@ export default function MemoriesPage() {
                 {selectedMemory.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 bg-rose-50 text-rose-600 text-xs rounded-full"
+                    className="px-3 py-1 bg-gradient-to-r from-rose-50 to-amber-50 text-rose-600 text-xs rounded-full shadow-sm font-handwriting"
                   >
                     {tag}
                   </span>
@@ -646,6 +769,7 @@ export default function MemoriesPage() {
               <Button
                 variant="outline"
                 onClick={closeMemoryView}
+                className="border-rose-200 hover:bg-rose-50"
               >
                 Close
               </Button>
