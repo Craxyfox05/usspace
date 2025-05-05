@@ -221,6 +221,7 @@ export default function MemoriesPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 });
   const [viewPosition, setViewPosition] = useState({ x: 0, y: 0 });
+  const [activeYear, setActiveYear] = useState<number | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const { syncAction, partnerActions } = useSyncActions("partner-123");
 
@@ -296,6 +297,48 @@ export default function MemoriesPage() {
     new Date(memory.date).getFullYear()
   ))].sort();
 
+  // Handle year transitions on scroll
+  useEffect(() => {
+    if (!timelineRef.current) return;
+    
+    const handleScroll = () => {
+      if (!timelineRef.current) return;
+      
+      // Determine which year section is currently in view
+      const scrollPosition = timelineRef.current.scrollTop;
+      const yearSectionHeight = 600; // Height of each year section
+      const currentYearIndex = Math.floor(scrollPosition / yearSectionHeight);
+      
+      if (memoryYears[currentYearIndex] && activeYear !== memoryYears[currentYearIndex]) {
+        setActiveYear(memoryYears[currentYearIndex]);
+        
+        // Find all transition elements and update their visibility
+        const transitionElements = document.querySelectorAll('.year-transition');
+        transitionElements.forEach((el: Element) => {
+          const yearAttr = el.getAttribute('data-year');
+          if (yearAttr && parseInt(yearAttr) === memoryYears[currentYearIndex]) {
+            el.classList.add('visible');
+          } else {
+            el.classList.remove('visible');
+          }
+        });
+      }
+    };
+    
+    // Add scroll event listener
+    const timelineElement = timelineRef.current;
+    timelineElement.addEventListener('scroll', handleScroll);
+    
+    // Initialize active year
+    if (memoryYears.length > 0) {
+      setActiveYear(memoryYears[0]);
+    }
+    
+    return () => {
+      timelineElement.removeEventListener('scroll', handleScroll);
+    };
+  }, [memoryYears, activeYear]);
+
   // Create path string for the curved timeline
   let timelinePath = "";
   
@@ -324,6 +367,17 @@ export default function MemoriesPage() {
     const endX = baseX + 300;
     timelinePath += ` Q${baseX + 150},${baseY + (yearIndex % 2 === 0 ? 40 : -40)} ${endX},${baseY}`;
   });
+
+  // Inspirational phrases for year transitions
+  const yearTransitionPhrases = [
+    "Here's where we fell deeper...",
+    "Another year, another chapter of us.",
+    "Every moment with you is a treasure...",
+    "Our love story continues to unfold...",
+    "Time flies when we're creating memories together...",
+    "Growing stronger with each passing day...",
+    "The best is yet to come in our journey..."
+  ];
 
   return (
     <PageLayout>
@@ -450,10 +504,10 @@ export default function MemoriesPage() {
               </svg>
             </div>
             
-            {/* Timeline Board */}
+            {/* Timeline Board with Scroll Snap */}
             <div
               ref={timelineRef}
-              className="w-full h-full overflow-auto p-4 md:p-8 cursor-grab"
+              className="w-full h-full overflow-auto snap-y snap-mandatory p-4 md:p-8 cursor-grab"
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -461,6 +515,7 @@ export default function MemoriesPage() {
               style={{ 
                 position: 'relative',
                 transition: isDragging ? 'none' : 'transform 0.1s ease-out',
+                scrollBehavior: 'smooth'
               }}
             >
               <div 
@@ -468,7 +523,7 @@ export default function MemoriesPage() {
                 style={{ 
                   transform: `translate(${viewPosition.x}px, ${viewPosition.y}px)`,
                   width: '3000px',
-                  height: '1500px'
+                  height: '2000px'
                 }}
               >
                 {/* Legend */}
@@ -492,7 +547,7 @@ export default function MemoriesPage() {
                 <svg 
                   width="100%" 
                   height="100%" 
-                  viewBox="0 0 3000 1000" 
+                  viewBox="0 0 3000 2000" 
                   preserveAspectRatio="none"
                 >
                   <defs>
@@ -531,13 +586,15 @@ export default function MemoriesPage() {
                   {/* Animated traveler on the path */}
                   <PathTraveler pathLength={timelinePath} />
                   
-                  {/* Year Labels */}
+                  {/* Year Labels and Section Dividers */}
                   {memoryYears.map((year, yearIndex) => {
                     const baseX = yearIndex * 600 + 150;
                     const baseY = 200 + (yearIndex % 2 === 0 ? -30 : 30);
+                    const sectionTop = yearIndex * 600;
                     
                     return (
                       <g key={year}>
+                        {/* Year label */}
                         <text
                           x={baseX - 10}
                           y={baseY - 50}
@@ -549,130 +606,328 @@ export default function MemoriesPage() {
                         >
                           {year}
                         </text>
+                        
+                        {/* Year separator (for years after the first) */}
+                        {yearIndex > 0 && (
+                          <g>
+                            {/* Dotted vertical line between years */}
+                            <line 
+                              x1={baseX - 350} 
+                              y1={baseY - 170} 
+                              x2={baseX - 350} 
+                              y2={baseY + 170}
+                              stroke="#fda4af"
+                              strokeWidth="3"
+                              strokeDasharray="8 6"
+                              strokeLinecap="round"
+                              opacity="0.4"
+                            />
+                            
+                            {/* Decorative elements at top and bottom of separator */}
+                            <circle 
+                              cx={baseX - 350} 
+                              cy={baseY - 170}
+                              r="6"
+                              fill="#fda4af"
+                              opacity="0.6"
+                            />
+                            
+                            <circle 
+                              cx={baseX - 350} 
+                              cy={baseY + 170}
+                              r="6"
+                              fill="#fda4af"
+                              opacity="0.6"
+                            />
+                          </g>
+                        )}
+                        
+                        {/* Year transition text (for years after the first) */}
+                        {yearIndex > 0 && (
+                          <g>
+                            <text
+                              x={baseX - 300}
+                              y={baseY - 120}
+                              fontSize="24"
+                              fontWeight="normal"
+                              fill="#fb7185"
+                              opacity="0.7"
+                              textAnchor="middle"
+                              fontFamily="Caveat"
+                              className="font-handwriting"
+                            >
+                              {yearTransitionPhrases[yearIndex % yearTransitionPhrases.length]}
+                            </text>
+                            
+                            {/* Decorative stars or hearts around transition text */}
+                            <path
+                              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                              fill="#fb7185"
+                              transform={`translate(${baseX - 340}, ${baseY - 120}) scale(0.8)`}
+                              opacity="0.5"
+                            />
+                            
+                            <path
+                              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                              fill="#fb7185"
+                              transform={`translate(${baseX - 260}, ${baseY - 120}) scale(0.8)`}
+                              opacity="0.5"
+                            />
+                          </g>
+                        )}
+                        
+                        {/* Invisible section anchor for scroll-snap */}
+                        <foreignObject 
+                          x={0} 
+                          y={sectionTop} 
+                          width="100%" 
+                          height="600"
+                          className="snap-start"
+                          id={`year-section-${year}`}
+                        >
+                          <div className="h-full w-full"></div>
+                        </foreignObject>
                       </g>
                     );
                   })}
                 </svg>
                 
-                {/* Memory nodes for each item */}
-                {memoryYears.map((year, yearIndex) => {
-                  const yearMemories = sortedMemories.filter(memory => 
-                    new Date(memory.date).getFullYear() === year
-                  );
-                  
-                  // Sort by month
-                  yearMemories.sort((a, b) => 
-                    new Date(a.date).getMonth() - new Date(b.date).getMonth()
-                  );
-                  
-                  // Base coordinates for this year's timeline section
-                  const baseX = yearIndex * 600 + 150;
-                  const baseY = 200 + (yearIndex % 2 === 0 ? -30 : 30);
-                  
-                  return (
-                    <div key={year} className="relative">
-                      {yearMemories.map((memory, memoryIndex) => {
-                        const memoryDate = new Date(memory.date);
-                        const month = memoryDate.getMonth();
-                        const isSpecial = memory.tags.some(tag => 
-                          ["Anniversary", "First Date", "Birthday", "Holiday"].includes(tag)
-                        );
-                        
-                        // Calculate positions along the curved path
-                        // This is a simplified calculation - in a real app you'd need to calculate
-                        // positions along the Bezier curve more precisely
-                        const xOffset = (month + 1) * 25; 
-                        const posX = baseX + xOffset;
-                        
-                        // Add some variation in Y position based on memory index
-                        const yOffset = (memoryIndex % 3 - 1) * 40;
-                        const posY = baseY + yOffset;
-                        
-                        return (
-                          <motion.div 
-                            key={memory.id || memoryIndex}
-                            className="absolute"
-                            style={{
-                              left: `${posX - 30}px`,
-                              top: `${posY - 30}px`,
-                              zIndex: 20
-                            }}
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ 
-                              type: "spring", 
-                              delay: memoryIndex * 0.1, 
-                              duration: 0.5 
-                            }}
-                          >
-                            {/* Memory Node */}
-                            <div 
-                              className="w-[70px] h-[90px] overflow-visible cursor-pointer transition-transform hover:scale-110 memory-node relative"
-                              onClick={() => handleViewMemory(memory)}
+                {/* Memory nodes for each year */}
+                <div className="relative z-20">
+                  {memoryYears.map((year, yearIndex) => {
+                    const yearMemories = sortedMemories.filter(memory => 
+                      new Date(memory.date).getFullYear() === year
+                    );
+                    
+                    // Sort by month
+                    yearMemories.sort((a, b) => 
+                      new Date(a.date).getMonth() - new Date(b.date).getMonth()
+                    );
+                    
+                    // Base coordinates for this year's timeline section
+                    const baseX = yearIndex * 600 + 150;
+                    const baseY = 200 + (yearIndex % 2 === 0 ? -30 : 30);
+                    
+                    return (
+                      <div key={year} className="relative snap-start" id={`year-memories-${year}`}>
+                        {yearMemories.map((memory, memoryIndex) => {
+                          const memoryDate = new Date(memory.date);
+                          const month = memoryDate.getMonth();
+                          const isSpecial = memory.tags.some(tag => 
+                            ["Anniversary", "First Date", "Birthday", "Holiday"].includes(tag)
+                          );
+                          
+                          // Calculate positions along the curved path
+                          // This is a simplified calculation - in a real app you'd need to calculate
+                          // positions along the Bezier curve more precisely
+                          const xOffset = (month + 1) * 25; 
+                          const posX = baseX + xOffset;
+                          
+                          // Add some variation in Y position based on memory index
+                          const yOffset = (memoryIndex % 3 - 1) * 40;
+                          const posY = baseY + yOffset;
+                          
+                          return (
+                            <motion.div 
+                              key={memory.id || memoryIndex}
+                              className="absolute"
+                              style={{
+                                left: `${posX - 30}px`,
+                                top: `${posY - 30}px`,
+                                zIndex: 20
+                              }}
+                              initial={{ scale: 0.9, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{ 
+                                type: "spring", 
+                                delay: memoryIndex * 0.1, 
+                                duration: 0.5 
+                              }}
                             >
-                              {/* Decorative tape at the top */}
-                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-10 h-5 bg-gradient-to-r from-amber-200 to-amber-300 opacity-70 rotate-3 z-10"></div>
-                              
-                              {/* Polaroid frame effect */}
-                              <div className="relative w-full h-full bg-white pt-1 pb-5 shadow-lg transform rotate-[-2deg]">
-                                {/* Image area */}
-                                <div className="relative w-full h-[55px] overflow-hidden border-2 border-gray-100 mx-auto">
-                                  <Image
-                                    src={memory.mediaUrl}
-                                    alt={memory.caption}
-                                    fill
-                                    className="object-cover"
-                                  />
+                              {/* Memory Node */}
+                              <div 
+                                className="w-[70px] h-[90px] overflow-visible cursor-pointer transition-transform hover:scale-110 memory-node relative"
+                                onClick={() => handleViewMemory(memory)}
+                              >
+                                {/* Decorative tape at the top */}
+                                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-10 h-5 bg-gradient-to-r from-amber-200 to-amber-300 opacity-70 rotate-3 z-10"></div>
+                                
+                                {/* Floating decorative elements for special memories */}
+                                {isSpecial && (
+                                  <>
+                                    {/* Heart icon */}
+                                    <div className="absolute -top-3 -right-3 floating-icon">
+                                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#fb7185" />
+                                      </svg>
+                                    </div>
+                                    
+                                    {/* Star icon */}
+                                    <div className="absolute -top-2 -left-3 floating-icon">
+                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5.6 1.4L12 16l-1.4-5.6L5 9l5.6-1.4z" fill="#fdba74" />
+                                      </svg>
+                                    </div>
+                                    
+                                    {/* Sparkle icon */}
+                                    <div className="absolute -bottom-2 -right-1 floating-icon" style={{ animation: 'sparkle 2s infinite' }}>
+                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2l1.4 5.4L19 9l-5.6 1.4L12 16l-1.4-5.6L5 9l5.6-1.4z" fill="#f9a8d4" />
+                                      </svg>
+                                    </div>
+                                  </>
+                                )}
+                                
+                                {/* Polaroid frame effect */}
+                                <div className="relative w-full h-full bg-white pt-1 pb-5 shadow-lg transform rotate-[-2deg]">
+                                  {/* Image area */}
+                                  <div className="relative w-full h-[55px] overflow-hidden border-2 border-gray-100 mx-auto">
+                                    <Image
+                                      src={memory.mediaUrl}
+                                      alt={memory.caption}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                    
+                                    {/* Overlay with radial gradient */}
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-rose-500/20 to-transparent opacity-50"></div>
+                                    
+                                    {/* Milestone indicator */}
+                                    {isSpecial && (
+                                      <motion.div 
+                                        className="absolute -top-1 -right-1 bg-amber-400 rounded-full p-1 shadow-sm"
+                                        animate={{ 
+                                          scale: [1, 1.2, 1], 
+                                          rotate: [0, 5, 0, -5, 0] 
+                                        }}
+                                        transition={{ 
+                                          duration: 3, 
+                                          repeat: Infinity, 
+                                          repeatType: "reverse" 
+                                        }}
+                                      >
+                                        <Star className="h-3 w-3 text-white" />
+                                      </motion.div>
+                                    )}
+                                  </div>
                                   
-                                  {/* Overlay with radial gradient */}
-                                  <div className="absolute inset-0 bg-gradient-to-tr from-rose-500/20 to-transparent opacity-50"></div>
-                                  
-                                  {/* Milestone indicator */}
-                                  {isSpecial && (
-                                    <motion.div 
-                                      className="absolute -top-1 -right-1 bg-amber-400 rounded-full p-1 shadow-sm"
-                                      animate={{ 
-                                        scale: [1, 1.2, 1], 
-                                        rotate: [0, 5, 0, -5, 0] 
-                                      }}
-                                      transition={{ 
-                                        duration: 3, 
-                                        repeat: Infinity, 
-                                        repeatType: "reverse" 
-                                      }}
-                                    >
-                                      <Star className="h-3 w-3 text-white" />
-                                    </motion.div>
-                                  )}
+                                  {/* Small caption underneath */}
+                                  <div className="text-[8px] text-center mt-1 font-handwriting text-gray-600 px-1 truncate">
+                                    {memory.caption.length > 20 
+                                      ? `${memory.caption.substring(0, 20)}...` 
+                                      : memory.caption}
+                                  </div>
                                 </div>
                                 
-                                {/* Small caption underneath */}
-                                <div className="text-[8px] text-center mt-1 font-handwriting text-gray-600 px-1 truncate">
-                                  {memory.caption.length > 20 
-                                    ? `${memory.caption.substring(0, 20)}...` 
-                                    : memory.caption}
+                                {/* Hover preview popup */}
+                                <div className="memory-preview">
+                                  <div className="relative w-full aspect-square mb-2 overflow-hidden rounded-md">
+                                    <Image
+                                      src={memory.mediaUrl}
+                                      alt={memory.caption}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                  <p className="text-xs font-medium text-gray-800 line-clamp-2 mb-1">{memory.caption}</p>
+                                  <div className="flex items-center gap-1 text-[10px] text-gray-500">
+                                    <Calendar className="h-3 w-3" />
+                                    <span>{format(memoryDate, "MMMM d, yyyy")}</span>
+                                  </div>
+                                  {memory.location && (
+                                    <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-1">
+                                      <MapPin className="h-3 w-3" />
+                                      <span>{memory.location}</span>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-                            </div>
-                            
-                            {/* Date label */}
-                            <motion.div 
-                              className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white/95 px-2 py-0.5 rounded text-xs font-handwriting text-gray-700 whitespace-nowrap shadow-sm border border-gray-100"
-                              initial={{ y: 10, opacity: 0 }}
-                              animate={{ y: 0, opacity: 1 }}
-                              transition={{ delay: memoryIndex * 0.1 + 0.3 }}
-                            >
-                              {format(memoryDate, "MMM d")}
+                              
+                              {/* Date label */}
+                              <motion.div 
+                                className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white/95 px-2 py-0.5 rounded text-xs font-handwriting text-gray-700 whitespace-nowrap shadow-sm border border-gray-100"
+                                initial={{ y: 10, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: memoryIndex * 0.1 + 0.3 }}
+                              >
+                                {format(memoryDate, "MMM d")}
+                              </motion.div>
                             </motion.div>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-            
+          
+            {/* Year Navigation */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 bg-white/80 backdrop-blur-sm p-2 rounded-lg border border-rose-100 shadow-sm">
+              {memoryYears.map((year) => (
+                <button
+                  key={year}
+                  className={`px-3 py-1 text-sm rounded-md hover:bg-rose-50 focus:outline-none transition-colors year-navigation-button ${activeYear === year ? 'active text-rose-600 font-medium' : 'text-gray-600'}`}
+                  onClick={() => {
+                    if (timelineRef.current) {
+                      const yearElement = document.getElementById(`year-section-${year}`);
+                      if (yearElement) {
+                        yearElement.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }
+                  }}
+                >
+                  {year}
+                </button>
+              ))}
+            </div>
+          
+            {/* Year Transition Messages */}
+            {memoryYears.map((year, yearIndex) => {
+              if (yearIndex === 0) return null; // Skip the first year
+              
+              const baseX = yearIndex * 600 + 150;
+              const baseY = 200 + (yearIndex % 2 === 0 ? -30 : 30);
+              
+              return (
+                <div 
+                  key={`transition-${year}`}
+                  className="absolute year-transition"
+                  style={{ 
+                    left: `${baseX - 300}px`, 
+                    top: `${baseY - 120}px`,
+                    zIndex: 50,
+                    animation: 'fadeIn 1s ease forwards',
+                    animationPlayState: activeYear === year ? 'running' : 'paused'
+                  }}
+                  data-year={year}
+                >
+                  <div className="bg-white/90 backdrop-blur-sm px-6 py-4 rounded-lg border border-rose-100 shadow-md">
+                    <p className="text-lg text-rose-700 font-handwriting">
+                      {yearTransitionPhrases[(yearIndex - 1) % yearTransitionPhrases.length]}
+                    </p>
+                    <div className="flex justify-center mt-2 space-x-4">
+                      <div className="text-rose-500">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+                        </svg>
+                      </div>
+                      <div className="text-amber-400">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
+                        </svg>
+                      </div>
+                      <div className="text-rose-500">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
             {/* Instructions Overlay */}
             <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-2 rounded-lg text-xs text-gray-600 border border-rose-100 shadow-sm">
               <div className="flex items-center gap-1">
@@ -681,7 +936,7 @@ export default function MemoriesPage() {
               </div>
             </div>
           </div>
-          
+        
           <div className="mt-6 text-center text-sm text-gray-500">
             <p>Your love story has {displayMemories.length} chapters and counting...</p>
           </div>
