@@ -9,10 +9,8 @@ import { Label } from "@/components/ui/label";
 import ImageUpload from "@/components/profile/ImageUpload";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
-import { LogOut, Paintbrush } from "lucide-react";
+import { LogOut } from "lucide-react";
 import RelationshipStreaks from "@/components/relationship/RelationshipStreaks";
-import PageThemeSelector from "@/components/settings/PageThemeSelector";
-import { ThemedDemoSection } from "@/components/ui/themed-container";
 
 const SettingsPage = () => {
   const { logout, partner, user } = useStore();
@@ -36,7 +34,6 @@ const SettingsPage = () => {
         <Tabs defaultValue="profile" className="w-full">
           <TabsList className="w-full mb-8">
             <TabsTrigger value="profile" className="flex-1">Your Profile</TabsTrigger>
-            <TabsTrigger value="appearance" className="flex-1">Appearance</TabsTrigger>
             <TabsTrigger value="account" className="flex-1">Account</TabsTrigger>
           </TabsList>
 
@@ -79,35 +76,6 @@ const SettingsPage = () => {
               </CardHeader>
               <CardContent>
                 <ImageUpload type="user" />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="appearance" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Paintbrush className="h-5 w-5 text-rose-500" />
-                  Page Theme
-                </CardTitle>
-                <CardDescription>
-                  Customize the look and feel of different pages in the app
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <PageThemeSelector />
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Theme Preview</CardTitle>
-                <CardDescription>
-                  Preview of how the theme will look on your pages
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ThemedDemoSection />
               </CardContent>
             </Card>
           </TabsContent>
